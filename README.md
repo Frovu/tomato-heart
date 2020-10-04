@@ -4,9 +4,10 @@ IOT (esp8266, lua) system with server side logic
 ## API
 ### heart (esp8266)
 #### GET /heart
-params: `?d=\<settings hash sum\>`<br>
+params: `?s=\<settings hash sum\>`<br>
 response:
 + `200` - all up to date (empty body)
++ `400` - no sum provided
 + `205` - settings update, body: `{new: <settings>, sum: <hashsum>}`
 
 #### POST /heart

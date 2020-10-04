@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // support url-encoded
 
 app.use(express.static('static'));
 
-app.use('/heart', require('heart.js'));
-app.use('/user',  require('user.js'));
+app.use('/heart', require('./heart.js'));
+app.use('/user',  require('./user.js'));
 
-app.listen(config.port, ()=>log(`listening to port ${config.port}`));
+app.listen(config.port, ()=>console.log(`listening to port ${config.port}`));
