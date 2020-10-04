@@ -21,6 +21,10 @@
   },
   "homepage": "https://github.com/Frovu/tomato-heart#readme",
   "devDependencies": {
-    "jest": "^26.4.2"
+    "jest": "^26.4.2",
+    "supertest": "^5.0.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
   }
 }
