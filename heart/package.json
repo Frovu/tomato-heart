@@ -4,7 +4,7 @@
   "description": "esp8266 greenhouse controller",
   "main": "server.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
     "start": "node server.js"
   },
   "repository": {
