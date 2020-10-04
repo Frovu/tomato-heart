@@ -1,0 +1,26 @@
+{
+  "name": "tomato-heart",
+  "version": "1.0.0",
+  "description": "esp8266 greenhouse controller",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Frovu/tomato-heart.git"
+  },
+  "keywords": [
+    "express"
+  ],
+  "author": "Frovy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Frovu/tomato-heart/issues"
+  },
+  "homepage": "https://github.com/Frovu/tomato-heart#readme",
+  "devDependencies": {
+    "jest": "^26.4.2"
+  }
+}
