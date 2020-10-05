@@ -21,4 +21,5 @@ module.exports.update = (changes) => {
         .update(JSON.stringify(settings.settings))
         .digest('hex');
     save();
+    return settings;
 }

@@ -4,9 +4,7 @@ const router = express.Router();
 
 // get new settings if changed
 router.get('/', (req, res) => {
-    if(!req.query.s)
-        return res.status(400).end();
-    if(settings.check(req.query.s))
+    if(req.query.s && settings.check(req.query.s))
         return res.status(200).send('OK');
     else
         return res.status(205).json(settings.get());
