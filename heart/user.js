@@ -10,13 +10,18 @@ router.get('/default', (req, res) => {
 // get current settings
 router.get('/', (req, res) => {
     // TODO: ??? authentication
-    return res.status(200).json(settings.get());
+    return res.status(200).json(settings.get().settings);
 });
 
 // update settings
 router.post('/', (req, res) => {
     // TODO: authentication
-    return res.status(501).end();
+    if(!req.body || !req.body.changes)
+        return res.status(400).json({error: "no changes object"});
+    const updated = settings.update(req.body.changes);
+    if(updated)
+        return res.status(200).json(updated);
+    res.status(500).end();
 });
 
 module.exports = router;

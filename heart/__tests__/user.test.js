@@ -1,53 +1,39 @@
-
-const mock_settings = {
-    settings: {"a": 1},
-    sum: "def"
-}
-
-jest.mock('../settings_default.json', () => {return {
-        settings: {"a": 1},
-        sum: "def"
-    }},
-    { virtual: true });
-jest.mock('../settings.json', () => {return {
-        settings: {"a": 1},
-        sum: "def"
-    }},
-    { virtual: true });
-
 const settings = require('../settings.js');
 
 const express = require("express");
-const router = require("../user.js");
 const request = require("supertest");
 const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // support url-encoded
-app.use("/user", router);
+app.use("/user", require("../user.js"));
 
 
 describe('user api', () => {
+    let oldSettings;
+    beforeAll(async (done) => {
+        const res = await request(app).get(`/user`);
+        oldSettings = res.body; done();
+    })
+
     describe('get default', () => {
-        it('returns valid json', async () => {
+        it('sends valid json', async () => {
             const res = await request(app).get(`/user/default`);
-            expect(res.body).toEqual(mock_settings);
+            expect(res.body).toHaveProperty('settings');
         });
     });
 
-    describe('pust updates and get updated', () => {
-        const changes = {a: 321};
-        xit('sends 205 and settings json', async () => {
-            const res = await request(app)
+    describe('post updates and get updated', () => {
+        const changes = {a: 321, b: false};
+        it('changes settings json', async () => {
+            let res = await request(app)
                 .post(`/user`)
-                .send(changes);
+                .send({changes: changes});
             expect(res.status).toEqual(200);
-            expect(res.body.settings.a).toEqual(321);
-        });
-        it('gets changed settings json', async () => {
-            // TODO: changes
-            const res = await request(app).get(`/user`);
-            expect(res.body).toEqual(mock_settings);
+            res = await request(app).get(`/user`);
+            expect(res.status).toEqual(200);
+            expect(res.body)
+                .toEqual(Object.assign(oldSettings, changes));
         });
     });
 });
