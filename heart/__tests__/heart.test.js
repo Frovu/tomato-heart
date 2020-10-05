@@ -1,20 +1,3 @@
-
-const mock_settings = {
-        settings: {"a": 1},
-        sum: "def"
-    }
-
-jest.mock('../settings_default.json', () => {return {
-        settings: {"a": 1},
-        sum: "def"
-    }},
-    { virtual: true });
-jest.mock('../settings.json', () => {return {
-        settings: {"a": 1},
-        sum: "def"
-    }},
-    { virtual: true });
-
 const settings = require('../settings.js');
 
 const express = require("express");
@@ -28,29 +11,28 @@ app.use("/heart", router);
 
 
 describe('heart', () => {
-    describe('beat with no sum', () => {
-        it('responses with 400', async () => {
-            const res = await request(app).get(`/heart`);
-            expect(res.status).toEqual(400);
-        });
-    });
-    
-    describe('beat with matching sum', () => {
-        it('responses with 200', async () => {
-            const res = await request(app)
-                .get(`/heart`)
-                .query({s: mock_settings.sum});
-            expect(res.status).toEqual(200);
-        });
-    });
+    let sum = 'empty';
+    beforeAll(async (done) => {
+        const res = await request(app).get(`/heart`);
+        sum = res.body.sum; done();
+    })
 
     describe('beat with bad sum', () => {
-        it('sends 205 and settings json', async () => {
+        it('responses 205 + settings json', async () => {
             const res = await request(app)
                 .get(`/heart`)
                 .query({s: 'asdsadasdad'});
             expect(res.status).toEqual(205);
-            expect(res.body).toEqual(mock_settings);
+            expect(res.body).toHaveProperty('settings');
+        });
+    });
+
+    describe('beat with matching sum', () => {
+        it('responses with 200', async () => {
+            const res = await request(app)
+                .get(`/heart`)
+                .query({s: sum});
+            expect(res.status).toEqual(200);
         });
     });
 });
