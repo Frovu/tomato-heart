@@ -28,7 +28,7 @@ describe('user api', () => {
         it('changes settings json', async () => {
             let res = await request(app)
                 .post(`/user`)
-                .send({changes: changes});
+                .send(changes);
             expect(res.status).toEqual(200);
             res = await request(app).get(`/user`);
             expect(res.status).toEqual(200);

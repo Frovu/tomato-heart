@@ -16,9 +16,9 @@ router.get('/', (req, res) => {
 // update settings
 router.post('/', (req, res) => {
     // TODO: authentication
-    if(!req.body || !req.body.changes)
-        return res.status(400).json({error: "no changes object"});
-    const updated = settings.update(req.body.changes);
+    if(!req.body || !Object.keys(req.body).length)
+        return res.status(400).json({error: "no changes"});
+    const updated = settings.update(req.body);
     if(updated)
         return res.status(200).json(updated);
     res.status(500).end();
