@@ -1,3 +1,4 @@
 heart/node_modules
 heart/settings.json
+heart/.env
 *.log

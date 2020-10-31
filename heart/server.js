@@ -1,10 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-global.log = require('./modules/logging.js');
+require('dotenv').config();
 
-const config = {
-	port: 3050
-};
+global.log = require('./modules/logging.js');
 
 const app = express();
 
@@ -16,4 +14,4 @@ app.use(express.static('public'));
 app.use('/heart', require('./routes/heart.js'));
 app.use('/user',  require('./routes/user.js'));
 
-app.listen(config.port, () => global.log(`listening to port ${config.port}`));
+app.listen(process.env.PORT, () => global.log(`listening to port ${process.env.PORT}`));
