@@ -1,5 +1,5 @@
 /* eslint-disable no-undef, no-unused-vars*/
-global.log = require('../modules/logging.js');
+global.log = () => {};
 const settings = require('../modules/settings.js');
 
 const express = require('express');

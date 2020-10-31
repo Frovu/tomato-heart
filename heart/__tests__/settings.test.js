@@ -1,6 +1,6 @@
 /* eslint-disable no-undef, no-unused-vars*/
 
-global.log = require('../modules/logging.js');
+global.log = () => {};
 const mock_settings = {
 	settings: {'a': 1},
 	sum: 'def'
