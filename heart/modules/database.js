@@ -7,19 +7,29 @@ const pool = new Pool({
 	port: process.env.DB_PORT,
 });
 
-const FIELDS = [
-	'temperature',
-	'pressure',
-	'humidity'
-];
+const FIELDS = {
+	t: 'temperature',
+	p: 'pressure',
+	h: 'humidity',
+	st1: 'soil_temp_1',
+	st2: 'soil_temp_2',
+	sm1: 'soil_moisture_1',
+	sm2: 'soil_moisture_2',
+	wt1: 'wire_temp_1',
+	wt2: 'wire_temp_2',
+};
 
 function validateData(data) {
-	for(const f of FIELDS)
-		if(!(f in data) || isNaN(parseFloat(data[f])))
+	const result = {};
+	for(const f in FIELDS) {
+		const val = parseFloat(data[f]);
+		if(!val || isNaN(val))
 			return false;
-	return true;
+		result[FIELDS[f]] = val;
+	}
+	return result;
 }
 
 module.exports.validateData = validateData;
 module.exports.fields = FIELDS;
-module.exports.query = pool.query;
+module.exports.pool = pool;

@@ -14,18 +14,16 @@ router.get('/', (req, res) => {
 // post measurments or event
 router.post('/', async (req, res) => {
 	try {
-		if(typeof req.body.data !== 'object' || !db.validateData(req.body.data))
+		const data = typeof req.body.data === 'object' && db.validateData(req.body.data);
+		if(!data)
 			return res.sendStatus(400);
 		let i=0;
-		const fields = Object.keys(req.body.data);
-		const q = `INSERT INTO data (${fields.join(', ')}) VALUES (${fields.map(`$${++i}`).join(',')})`;
-		console.log(q)
-		const resp = await db.query(q, Object.values(req.body.data));
-		console.log(resp)
+		const fields = Object.keys(data);
+		const q = `INSERT INTO data (${fields.join(', ')}) VALUES (${fields.map(()=>`$${++i}`).join(',')})`;
+		await db.pool.query(q, Object.values(data));
 		return res.sendStatus(200);
 	} catch (e) {
-		console.log(e)
-		global.log(e);
+		global.log(`ERROR: (POST heart/) ${e.stack}`);
 		return res.sendStatus(500);
 	}
 });

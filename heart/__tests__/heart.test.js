@@ -42,7 +42,7 @@ describe('heart', () => {
 		it('responses with 400', async () => {
 			const res = await request(app)
 				.post('/heart')
-				.query({temperature: 42, ad: 'asd'});
+				.query({data: {temperature: 42, ad: 'asd'}});
 			expect(res.status).toEqual(400);
 		});
 	});
