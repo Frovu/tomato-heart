@@ -11,10 +11,10 @@ router.get('/', (req, res) => {
 		return res.status(205).json(settings.get());
 });
 
-// post measurments or event
-router.post('/', async (req, res) => {
+// post measurments
+router.post('/data', async (req, res) => {
 	try {
-		const data = typeof req.body.data === 'object' && db.validateData(req.body.data);
+		const data = typeof req.body === 'object' && db.validateData(req.body);
 		if(!data)
 			return res.sendStatus(400);
 		let i=0;
@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
 		await db.pool.query(q, Object.values(data));
 		return res.sendStatus(200);
 	} catch (e) {
-		global.log(`ERROR: (POST heart/) ${e.stack}`);
+		global.log(`ERROR: (POST heart/data) ${e.stack}`);
 		return res.sendStatus(500);
 	}
 });
