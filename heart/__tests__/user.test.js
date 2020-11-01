@@ -1,5 +1,7 @@
 /* eslint-disable no-undef, no-unused-vars*/
 global.log = () => {};
+const fs = require('fs');
+jest.spyOn(fs, 'writeFileSync').mockImplementation(()=>{});
 const settings = require('../modules/settings.js');
 
 const express = require('express');
