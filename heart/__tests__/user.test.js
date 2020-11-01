@@ -3,6 +3,7 @@ global.log = () => {};
 const fs = require('fs');
 jest.spyOn(fs, 'writeFileSync').mockImplementation(()=>{});
 const settings = require('../modules/settings.js');
+require('dotenv').config();
 
 const express = require('express');
 const request = require('supertest');
@@ -20,16 +21,38 @@ describe('user api', () => {
 		oldSettings = res.body; done();
 	});
 
-	describe('get default', () => {
+	describe('get default settings', () => {
 		it('sends valid json', async () => {
 			const res = await request(app).get('/user/default');
 			expect(res.body).toHaveProperty('settings');
 		});
 	});
 
-	describe('post updates and get updated', () => {
-		const changes = {a: 321, b: false};
-		it('changes settings json', async () => {
+	describe('post settings updates', () => {
+
+		it('responds 400 if invalid', async () => {
+			const res = await request(app)
+				.post('/user')
+				.send({asd: 123, secret: process.env.SECRET});
+			expect(res.status).toEqual(400);
+		});
+
+		it('responds 401 if no secret', async () => {
+			const res = await request(app)
+				.post('/user')
+				.send({settings: {asd: 123}});
+			expect(res.status).toEqual(401);
+		});
+		it('responds 401 if secret bad', async () => {
+			const res = await request(app)
+				.post('/user')
+				.send({settings: {asd: 123}, secret: '__Invalid__'});
+			expect(res.status).toEqual(401);
+		});
+
+		it('changes settings if all ok', async () => {
+			const changes = {settings: {a: 123}};
+			changes.secret = process.env.SECRET;
 			let res = await request(app)
 				.post('/user')
 				.send(changes);
@@ -37,7 +60,7 @@ describe('user api', () => {
 			res = await request(app).get('/user');
 			expect(res.status).toEqual(200);
 			expect(res.body)
-				.toEqual(Object.assign(oldSettings, changes));
+				.toEqual(changes.settings);
 		});
 	});
 });

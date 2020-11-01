@@ -15,10 +15,12 @@ router.get('/', (req, res) => {
 
 // update settings
 router.post('/', (req, res) => {
-	// TODO: authentication
-	if(!req.body || !Object.keys(req.body).length)
-		return res.status(400).json({error: 'no changes'});
-	const updated = settings.update(req.body);
+	const set = req.body && req.body.settings;
+	if(!set || !Object.keys(set).length)
+		return res.sendStatus(400);
+	if(!req.body.secret || req.body.secret !== process.env.SECRET)
+		return res.sendStatus(401);
+	const updated = settings.update(set);
 	if(updated)
 		return res.status(200).json(updated);
 	res.status(500).end();
