@@ -37,4 +37,13 @@ describe('heart', () => {
 			expect(res.status).toEqual(200);
 		});
 	});
+
+	describe('invalid data insertion', () => {
+		it('responses with 400', async () => {
+			const res = await request(app)
+				.post('/heart')
+				.query({temperature: 42, ad: 'asd'});
+			expect(res.status).toEqual(400);
+		});
+	});
 });
