@@ -1,4 +1,5 @@
 let settings;
+let ranges;
 
 const conv = {
 	Day: 'day',
@@ -21,8 +22,7 @@ function readSettings() {
 	return res;
 }
 
-function diffSettings() {
-	const newSettings = readSettings();
+function diffSettings(newSettings) {
 	let html = '';
 	for(const i of [0, 1]) {
 		for(const dt of ['Day', 'Night']) {
@@ -42,18 +42,46 @@ function diffSettings() {
 }
 
 function showModal() { // eslint-disable-line
-	const diff = diffSettings();
-	if(diff) {
-		$('#modalBody').html(diff);
-		$('#settingsModal').modal('show');
-	} else {
-		$('#settingsAlert').addClass('show');
-		setTimeout(()=>{$('#settingsAlert').removeClass('show');}, 3000);
+	const newSettings = readSettings();
+	// validate input
+	let flagInvalid = false
+	for(const i of [0, 1]) {
+		for(const dt of ['Day', 'Night']) {
+			for(const lh of ['Low', 'High']) {
+				const tv = newSettings[i][conv[dt]][conv[lh]];
+				if(isNaN(tv) || tv < ranges.temp[0] || tv > ranges.temp[1]) {
+					$(`#t${dt}${lh}${i+1}`).addClass('is-invalid');
+					flagInvalid = true;
+				} else {
+					$(`#t${dt}${lh}${i+1}`).removeClass('is-invalid');
+				}
+			}
+		}
+		const wr = newSettings[i].wire;
+		if(isNaN(wr) || wr < ranges.wireTemp[0] || wr > ranges.wireTemp[1]) {
+			flagInvalid = true;
+			$(`#tWire${i+1}`).addClass('is-invalid');
+		} else {
+			$(`#tWire${i+1}`).removeClass('is-invalid');
+		}
+	}
+	if(!flagInvalid) {
+		const diff = diffSettings(newSettings);
+		if(diff) {
+			$('#modalBody').html(diff);
+			$('#settingsModal').modal('show');
+		} else {
+			$('#settingsAlert').addClass('show');
+			setTimeout(()=>{$('#settingsAlert').removeClass('show');}, 3000);
+		}
 	}
 }
 
 window.onload = async () => {
-	const resp = await fetch('user');
+	let resp = await fetch('ranges.json');
+	ranges = await resp.json();
+	console.log('ranges', ranges);
+	resp = await fetch('user');
 	settings = await resp.json();
 	console.log('settings', settings);
 	// set settings form to retrieved values
