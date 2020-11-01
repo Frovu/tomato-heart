@@ -23,3 +23,8 @@ textarea, input {
 	color: #22ff22;
 	font-size: 11pt;
 }
+
+#modalBody {
+	font-family: Courier New;
+	font-weight: 500;
+}
