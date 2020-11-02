@@ -71,8 +71,10 @@ function showModal() { // eslint-disable-line
 			$('#modalBody').html(diff);
 			$('#settingsModal').modal('show');
 		} else {
-			$('#settingsAlert').addClass('show');
-			setTimeout(()=>{$('#settingsAlert').removeClass('show');}, 3000);
+			const alert = $('#settingsAlert');
+			alert.html('Nothing to change!');
+			alert.addClass('show');
+			setTimeout(()=>{alert.removeClass('show');}, 1700);
 		}
 	}
 }
@@ -80,15 +82,39 @@ function showModal() { // eslint-disable-line
 async function submitSettings(event) {
 	event.preventDefault();
 	event.stopPropagation();
-	const secret = $('#secret').val();
-	const req = {settings: readSettings()};
-	req.secret = secret;
-	const resp = await fetch('user', {
-		method: 'POST',
-		headers: {'content-type': 'application/json'},
-		body: JSON.stringify(req)
-	});
-	console.log(resp.status);
+	const secret = $('#secret');
+	const feedback = $('#settingsFeedback');
+	const err = msg => {
+		secret.addClass('is-invalid');
+		feedback.text(msg);
+	};
+	try {
+		const req = {settings: readSettings()};
+		req.secret = secret.val();
+		const resp = await fetch('user', {
+			method: 'POST',
+			headers: {'content-type': 'application/json'},
+			body: JSON.stringify(req)
+		});
+		if(resp.status === 200) {
+			$('#settingsModal').modal('hide');
+			secret.removeClass('is-invalid');
+			const alert = $('#settingsAlert');
+			alert.html('<strong>Settings updated!</strong>');
+			alert.addClass('show');
+			setTimeout(()=>{alert.removeClass('show');}, 4000);
+		} else if(resp.status === 400) {
+			err('Invalid settings');
+		} else if(resp.status === 401) {
+			err('Invalid secret');
+		} else {
+			err('Error on server');
+		}
+	} catch (e) {
+		console.error(e);
+		err('Error occured');
+	}
+
 }
 
 window.onload = async () => {

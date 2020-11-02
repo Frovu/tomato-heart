@@ -166,7 +166,7 @@
 					<button type="button" class="btn btn-primary w-75" onclick="showModal()">
 						Update Settings
 					</button>
-					<div id="settingsAlert" class="mt-3 w-75 alert alert-info fade" role="alert">
+					<div id="settingsAlert" class="mt-3 w-75 alert alert-success fade" role="alert">
 						<strong>Nothing to change!</strong>
 					</div>
 				</form>
@@ -185,11 +185,14 @@
 						<p id="modalBody"></p>
 					</div>
 					<div class="modal-footer">
-					<label for="secret">secret:</label>
-					<input class="mr-4 w-50 form-control" type="password" id="secret" name="secret" value="" placeholder="authority secret">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<form id="settingsForm">
-						<button type="submit" class="btn btn-primary">Proceed</button>
+					<form class="" id="settingsForm">
+						<div class="form-row">
+							<!-- <label for="secret">secret:</label> -->
+							<input class="mr-4 w-50 form-control" type="password" id="secret" name="secret" value="" placeholder="authority secret">
+							<button type="button" class="mr-3 btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="submit" class="btn btn-primary">Proceed</button>
+							<div id="settingsFeedback" class="invalid-feedback">error</div>
+						</div>
 					</form>
 					</div>
 				</div>
