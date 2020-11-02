@@ -89,7 +89,8 @@ async function submitSettings(event) {
 		feedback.text(msg);
 	};
 	try {
-		const req = {settings: readSettings()};
+		const news = readSettings();
+		const req = {settings: news};
 		req.secret = secret.val();
 		const resp = await fetch('user', {
 			method: 'POST',
@@ -97,6 +98,7 @@ async function submitSettings(event) {
 			body: JSON.stringify(req)
 		});
 		if(resp.status === 200) {
+			settings = news; // update global settings state
 			$('#settingsModal').modal('hide');
 			secret.removeClass('is-invalid');
 			const alert = $('#settingsAlert');
