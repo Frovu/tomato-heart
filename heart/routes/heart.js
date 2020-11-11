@@ -28,4 +28,18 @@ router.post('/data', async (req, res) => {
 	}
 });
 
+// post event
+router.post('/event', async (req, res) => {
+	try {
+		const data = typeof req.body === 'object' && req.body;
+		if(!data || typeof data.message === 'string')
+			return res.sendStatus(400);
+		await db.pool.query('INSERT INTO events (message) VALUES ($1)', data.message);
+		return res.sendStatus(200);
+	} catch (e) {
+		global.log(`ERROR: (POST heart/event) ${e.stack}`);
+		return res.sendStatus(500);
+	}
+});
+
 module.exports = router;

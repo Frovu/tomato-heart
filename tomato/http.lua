@@ -1,10 +1,10 @@
-local URI = "http://192.168.1.113:3050/heart"
+dofile("wifi.lua")
 
 settings = nil
 local hashsum = ""
 
 heartbeat = function()
-	http.get(string.format("%s?s=%s", URI, hashsum), nil, function(code, data)
+	http.get(string.format("%s?s=%s", uri, hashsum), nil, function(code, data)
 		if (code < 0) then
 			print("HTTP request failed")
 		else
@@ -24,7 +24,7 @@ end
 
 send = function(type, data)
 	local body = sjson.encode(data)
-	http.post(string.format("%s/%s", URI, type=="data" and "data" or "event"),
+	http.post(string.format("%s/%s", uri, type=="data" and "data" or "event"),
 		"Content-Type: application/json\r\n", body, function(code, data)
 		if (code < 0) then
 			print("HTTP request failed ()", type)
