@@ -1,14 +1,15 @@
--- Pin definition 
-local pin = 4            --  GPIO13
-local status = gpio.LOW
-local duration = 1000    -- 1 second duration for timer
+dofile("wifi.lua")
+dofile("http.lua")
 
--- Initialising pin
-gpio.mode(pin, gpio.OUTPUT)
-gpio.write(pin, status)
+local LED_PIN = 4
+local HEARTBEAT_RATE = 5000
 
--- Init timer
-tmr.create():alarm(duration, tmr.ALARM_AUTO, function()
-  status = status==gpio.LOW and gpio.HIGH or gpio.LOW
-  gpio.write(pin, status)
+gpio.mode(LED_PIN, gpio.OUTPUT)
+gpio.write(LED_PIN, gpio.HIGH)
+
+-- main event
+tmr.create():alarm(HEARTBEAT_RATE, tmr.ALARM_AUTO, function()
+	gpio.write(LED_PIN, gpio.LOW)
+	heartbeat()
+	gpio.write(LED_PIN, gpio.HIGH)
 end)
