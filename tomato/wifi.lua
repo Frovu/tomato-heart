@@ -1,7 +1,7 @@
 ALLOW_NET = true -- allows to do web requests
 
 local sta_config = wifi.sta.getconfig(true);
-print(string.format("\nCurrent wifi config, mode: %d\n\tssid:\"%s\"\tpassword:\"%s\"\n\tbssid:\"%s\"\tbssid_set:%s", wifi.getmode(), tostring(sta_config.ssid), tostring(sta_config.pwd), sta_config.bssid, (sta_config.bssid_set and "true" or "false")))
+print(string.format("\nCurrent wifi config, mode: %d\n\tssid:\"%s\"\tpassword:\"%s\"\n\tbssid:\"%s\"\tbssid_set:%s", wifi.getmode(nil), tostring(sta_config.ssid), tostring(sta_config.pwd), sta_config.bssid, (sta_config.bssid_set and "true" or "false")))
 
 wifi.ap.config({ssid = "TomatoHeart"})
 print("\nCurrent SoftAP configuration:")
@@ -19,16 +19,19 @@ function startConfServer()
 		print("\nStarting config server..")
 		server = net.createServer(net.TCP, 5)
 		server:listen(80, function(conn)
-            print("incoming connection")
+			print("incoming connection")
 			conn:on("receive", receiver)
 		end)
 		local port, ip = server:getaddr()
 		print("Listening to "..ip..":"..port)
+	else
+		print("Config server already running.")
 	end
 end
 
 function stopConfServer()
 	if server then
+		print("Closing config sever")
 		server:close()
 		server = nil
 	end
@@ -73,12 +76,14 @@ function receiver(sck, data)
 				file.write(uri)
 				file.close()
 			end
-			sck:send("settings updated");
+			sck:send("settings updated, changing mode");
 			sck:on("sent", function(conn)
 				conn:close()
-				stopConfServer()
-				wifi.setmode(wifi.STATION)
-				wifi.sta.config(sta_config)
+				tmr.create():alarm(500, tmr.ALARM_SINGLE, function()
+					stopConfServer()
+					wifi.setmode(wifi.STATION)
+					wifi.sta.config(sta_config)
+				end)
 			end)
 		else
 			sck:send("bad request");
@@ -86,8 +91,8 @@ function receiver(sck, data)
 	else
 		print("http get/?")
 		sck:send(string.format(index, sta_config.ssid or "", sta_config.pwd or "", uri or ""))
+		sck:on("sent", function(conn) conn:close() end)
 	end
-    sck:on("sent", function(conn) conn:close() end)
 end
 
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)
@@ -98,12 +103,15 @@ end)
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
 	print("\nSTA - DISCONNECTED".."\nSSID: "..T.SSID.."\nBSSID: "..
 	T.BSSID.."\nreason: "..T.reason)
+	ALLOW_NET = false
+	startConfServer()
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
 	print("\nSTA - GOT IP".."\nStation IP: "..T.IP.."\nSubnet mask: "..
 	T.netmask.."\nGateway IP: "..T.gateway)
-    ALLOW_NET = true
+	ALLOW_NET = true
+	stopConfServer()
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DHCP_TIMEOUT, function()
@@ -111,14 +119,14 @@ wifi.eventmon.register(wifi.eventmon.STA_DHCP_TIMEOUT, function()
 end)
 
 wifi.eventmon.register(wifi.eventmon.AP_STACONNECTED, function(T)
-print("\nAP - STATION CONNECTED".."\nMAC: "..T.MAC.."\nAID: "..T.AID)
+	print("\nAP - STATION CONNECTED".."\nMAC: "..T.MAC.."\nAID: "..T.AID)
 end)
 
 wifi.eventmon.register(wifi.eventmon.AP_STADISCONNECTED, function(T)
-print("\nAP - STATION DISCONNECTED".."\nMAC: "..T.MAC.."\nAID: "..T.AID)
+	print("\nAP - STATION DISCONNECTED".."\nMAC: "..T.MAC.."\nAID: "..T.AID)
 end)
 
 wifi.eventmon.register(wifi.eventmon.WIFI_MODE_CHANGED, function(T)
-print("\nSTA - WIFI MODE CHANGED".."\nold_mode: "..
-T.old_mode.."\nnew_mode: "..T.new_mode)
+	print("\nSTA - WIFI MODE CHANGED".."\nold_mode: "..
+	T.old_mode.."\nnew_mode: "..T.new_mode)
 end)
