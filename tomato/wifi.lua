@@ -1,4 +1,4 @@
-ALLOW_NET = true -- allows to do web requests
+ALLOW_NET = false -- allows to do web requests
 
 local sta_config = wifi.sta.getconfig(true);
 print(string.format("\nCurrent wifi config, mode: %d\n\tssid:\"%s\"\tpassword:\"%s\"\n\tbssid:\"%s\"\tbssid_set:%s", wifi.getmode(nil), tostring(sta_config.ssid), tostring(sta_config.pwd), sta_config.bssid, (sta_config.bssid_set and "true" or "false")))
@@ -37,6 +37,11 @@ function stopConfServer()
 	end
 end
 
+-- run config server for a minute after restart
+tmr.create():alarm(5000, tmr.ALARM_SINGLE, function()
+	startConfServer()
+	tmr.create():alarm(60000, tmr.ALARM_SINGLE, function() if ALLOW_NET then stopConfServer() end end)
+end)
 -- if STA requires manual configuration
 if not sta_config.pwd and #tostring(sta_config.ssid) == 0 then
 	ALLOW_NET = false
@@ -44,7 +49,7 @@ if not sta_config.pwd and #tostring(sta_config.ssid) == 0 then
 	startConfServer()
 end
 
-local server = nil
+server = nil
 
 local URI_FNAME = "uri"
 if file.open(URI_FNAME, "r") then
@@ -76,7 +81,7 @@ function receiver(sck, data)
 				file.write(uri)
 				file.close()
 			end
-			sck:send("settings updated, changing mode");
+			sck:send("<!DOCTYPE html>\n<h1>Settings updated, changing wifi mode</h1>");
 			sck:on("sent", function(conn)
 				conn:close()
 				tmr.create():alarm(500, tmr.ALARM_SINGLE, function()

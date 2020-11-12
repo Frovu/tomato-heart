@@ -8,7 +8,8 @@ gpio.write(LED_PIN, gpio.HIGH)
 
 -- main event
 tmr.create():alarm(HEARTBEAT_RATE, tmr.ALARM_AUTO, function()
-	gpio.write(LED_PIN, gpio.LOW)
+	-- blink if ok reverse blink if settings server running
+	gpio.write(LED_PIN, server and gpio.HIGH or gpio.LOW)
 	heartbeat()
-	if ALLOW_NET then gpio.write(LED_PIN, gpio.HIGH) end
+	gpio.write(LED_PIN, server and gpio.LOW or gpio.HIGH)
 end)
