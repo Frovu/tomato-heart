@@ -1,4 +1,3 @@
-dofile("wifi.lua")
 dofile("http.lua")
 
 local LED_PIN = 4
