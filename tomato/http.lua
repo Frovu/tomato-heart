@@ -4,6 +4,7 @@ settings = nil
 local hashsum = ""
 
 heartbeat = function()
+	if not ALLOW_NET then return false end
 	http.get(string.format("%s?s=%s", uri, hashsum), nil, function(code, data)
 		if (code < 0) then
 			print("HTTP request failed")
@@ -13,16 +14,19 @@ heartbeat = function()
 				if tmp.settings and tmp.sum then
 					settings = tmp.settings
 					hashsum = tmp.sum
-					print("Settings updated")
+					print("\nSettings updated")
 				else
-					print("Invalid settings body")
+					print("\nInvalid settings body")
 				end
+			elseif (code == 200) then
+				print(".")
 			end
 		end
 	end)
 end
 
 send = function(type, data)
+	if not ALLOW_NET then return false end
 	local body = sjson.encode(data)
 	http.post(string.format("%s/%s", uri, type=="data" and "data" or "event"),
 		"Content-Type: application/json\r\n", body, function(code, data)

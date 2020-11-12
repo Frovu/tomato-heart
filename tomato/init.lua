@@ -10,5 +10,5 @@ gpio.write(LED_PIN, gpio.HIGH)
 tmr.create():alarm(HEARTBEAT_RATE, tmr.ALARM_AUTO, function()
 	gpio.write(LED_PIN, gpio.LOW)
 	heartbeat()
-	gpio.write(LED_PIN, gpio.HIGH)
+	if ALLOW_NET then gpio.write(LED_PIN, gpio.HIGH) end
 end)
