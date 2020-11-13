@@ -14,9 +14,9 @@ heartbeat = function()
 				if tmp.settings and tmp.sum then
 					settings = tmp.settings
 					hashsum = tmp.sum
-					print("\nSettings updated")
+					print("Settings updated")
 				else
-					print("\nInvalid settings body")
+					print("Invalid settings body")
 				end
 			elseif (code == 200) then
 				print(".")
