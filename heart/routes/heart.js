@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 // post measurments
 router.post('/data', async (req, res) => {
 	try {
-		const data = typeof req.body === 'object' && db.validateData(req.body);
+		const data = typeof req.body === 'object' && db.validateData(req.body, 'data');
 		if(!data)
 			return res.sendStatus(400);
 		let i=0;

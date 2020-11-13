@@ -1,6 +1,7 @@
 /* eslint-disable no-undef, no-unused-vars*/
 global.log = () => {};
 const settings = require('../modules/settings.js');
+require('dotenv').config();
 
 const express = require('express');
 const router = require('../routes/heart.js');
@@ -59,6 +60,7 @@ describe('heart', () => {
 			st1: 42.42,
 			st2: 43.42,
 		};
+		db.pool.end();
 		const queryFn = jest.spyOn(db.pool, 'query').mockImplementation((q, values)=>{
 			for(const a in data)
 				if(!values.includes(data[a]))

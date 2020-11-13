@@ -16,6 +16,7 @@
 CREATE TABLE data (
 	id SERIAL PRIMARY KEY,
 	at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	dev integer NOT NULL,
 	temperature real,
 	pressure real,
 	humidity real,
@@ -30,5 +31,12 @@ CREATE TABLE data (
 CREATE TABLE events (
 	id SERIAL PRIMARY KEY,
 	at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	message TEXT NOT NULL
+	message TEXT NOT NULL,
+	value boolean
+);
+
+CREATE TABLE devices (
+	id SERIAL PRIMARY KEY,
+	key TEXT NOT NULL,
+	description TEXT
 );
