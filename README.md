@@ -10,16 +10,16 @@ response:
 + `400` - no sum provided
 + `205` - settings update, body: `{new: <settings>, sum: <hashsum>}`
 
-#### POST /heart/event
+#### POST /heart/data
 body: `{key: "", msg: "", val: ""}`<br>
 response:
 + `200` - data saved
 + `400` - bad data
 + `401` - bad authority information
 
-or
-
-body: `{event: "<event name>", auth: "key"}`<br>
+#### POST /heart/event
+body: `{key: "", ...}`<br>
+see `const FIELDS` in `heart/modules/database` for keys dictionary (all are float)
 response:
 + `200` - data saved
 + `400` - bad data
@@ -28,7 +28,15 @@ response:
 ### user (front end)
 #### GET /user
 get current settings
-#### GET /user/data
-get specific data
-#### GET /user/heart?n=1
-get timestamps of last n heartbeat events
+#### GET /user/default
+get default settings
+#### GET /user/status
+get last devices event and data
+
+#### POST /user
+update settings
+body: `{settings: {new settings}, secert: "secret"}`<br>
+response:
++ `200` - settings saved
++ `400` - bad settings
++ `401` - invalid secret

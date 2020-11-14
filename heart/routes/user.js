@@ -1,6 +1,7 @@
 const express = require('express');
 const settings = require('../modules/settings');
 const router = express.Router();
+const db = require('../modules/database');
 
 // get default settings
 router.get('/default', (req, res) => {
@@ -9,8 +10,12 @@ router.get('/default', (req, res) => {
 
 // get current settings
 router.get('/', (req, res) => {
-	// TODO: ??? authentication
 	return res.status(200).json(settings.get().settings);
+});
+
+// get last data from devices
+router.get('/status', (req, res) => {
+	return res.status(200).json(db.last);
 });
 
 // update settings

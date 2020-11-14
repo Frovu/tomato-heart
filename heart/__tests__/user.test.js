@@ -1,5 +1,23 @@
 /* eslint-disable no-undef, no-unused-vars*/
 global.log = () => {};
+jest.mock('pg');
+const { Pool } = require('pg');
+let data;
+const queryFn = jest.fn((q, values) => {
+	if(typeof q === 'object')
+		return {rows: []};
+	for(const a in data)
+		if(a!=='key' && !values.includes(data[a]))
+			return false;
+	return true;
+});
+Pool.mockImplementation((_config) => {
+	return {
+		connect: jest.fn(),
+		query: queryFn
+	};
+});
+
 const fs = require('fs');
 jest.spyOn(fs, 'writeFileSync').mockImplementation(()=>{});
 const settings = require('../modules/settings.js');
