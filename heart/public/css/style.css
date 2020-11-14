@@ -24,11 +24,11 @@ textarea, input {
 	font-size: 11pt;
 }
 
+.fade.alert {
+	transition-duration: 0.7s !important;
+}
+
 #modalBody {
 	font-family: Courier New;
 	font-weight: 500;
-}
-
-.fade {
-	transition-duration: 0.7s !important;
 }
