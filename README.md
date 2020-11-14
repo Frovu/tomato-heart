@@ -10,8 +10,8 @@ response:
 + `400` - no sum provided
 + `205` - settings update, body: `{new: <settings>, sum: <hashsum>}`
 
-#### POST /heart
-body: `{data: <data>, auth: "key"}`<br>
+#### POST /heart/event
+body: `{key: "", msg: "", val: ""}`<br>
 response:
 + `200` - data saved
 + `400` - bad data

@@ -31,6 +31,7 @@ CREATE TABLE data (
 CREATE TABLE events (
 	id SERIAL PRIMARY KEY,
 	at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	dev integer NOT NULL,
 	message TEXT NOT NULL,
 	value boolean
 );

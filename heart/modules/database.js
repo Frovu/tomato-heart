@@ -28,10 +28,6 @@ const FIELDS = {
 		sm2: 'soil_moisture_2',
 		wt1: 'wire_temp_1',
 		wt2: 'wire_temp_2'
-	},
-	event: {
-		m: 'message',
-		v: 'value'
 	}
 };
 

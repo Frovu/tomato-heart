@@ -17,10 +17,13 @@ router.post('/data', async (req, res) => {
 		const data = typeof req.body === 'object' && db.validateData(req.body, 'data');
 		if(!data)
 			return res.sendStatus(400);
-		let i=0;
+		const devId = db.authorize(req.body.key);
+		if(!devId) // not a known device key
+			return res.sendStatus(401);
+		let i=1;
 		const fields = Object.keys(data);
-		const q = `INSERT INTO data (${fields.join(', ')}) VALUES (${fields.map(()=>`$${++i}`).join(',')})`;
-		await db.pool.query(q, Object.values(data));
+		const q = `INSERT INTO data (dev, ${fields.join(', ')}) VALUES ($1,${fields.map(()=>`$${++i}`).join(',')})`;
+		await db.pool.query(q, [devId].concat(Object.values(data)));
 		return res.sendStatus(200);
 	} catch (e) {
 		global.log(`ERROR: (POST heart/data) ${e.stack}`);
@@ -32,9 +35,14 @@ router.post('/data', async (req, res) => {
 router.post('/event', async (req, res) => {
 	try {
 		const data = typeof req.body === 'object' && req.body;
-		if(!data || typeof data.message === 'string')
+		if(!data || typeof data.msg === 'string')
 			return res.sendStatus(400);
-		await db.pool.query('INSERT INTO events (message) VALUES ($1)', data.message);
+		const devId = db.authorize(data.key);
+		if(!devId) // not a known device key
+			return res.sendStatus(401);
+		const val = data.val;
+		const q = `INSERT INTO events(devId, message${val?',value':''}) VALUES ($1,$2${val?',$3':''})`;
+		await db.pool.query(q, [devId, data.msg].concat(val?[val]:val));
 		return res.sendStatus(200);
 	} catch (e) {
 		global.log(`ERROR: (POST heart/event) ${e.stack}`);
