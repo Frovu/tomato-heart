@@ -43,7 +43,6 @@ describe('user api', () => {
 	});
 
 	describe('post settings updates', () => {
-
 		it('responds 400 if invalid', async () => {
 			const res = await request(app)
 				.post('/user')
@@ -75,6 +74,13 @@ describe('user api', () => {
 			expect(res.status).toEqual(200);
 			expect(res.body)
 				.toEqual(changes.settings);
+		});
+	});
+
+	describe('get status', () => {
+		it('responses with 200', async () => {
+			const res = await request(app).get('/user/status');
+			expect(res.status).toEqual(200);
 		});
 	});
 });
