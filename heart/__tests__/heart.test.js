@@ -1,5 +1,23 @@
 /* eslint-disable no-undef, no-unused-vars*/
 global.log = () => {};
+jest.mock('pg');
+const { Pool } = require('pg');
+let data;
+const queryFn = jest.fn((q, values) => {
+	if(typeof q === 'object')
+		return {rows: []};
+	for(const a in data)
+		if(a!=='key' && !values.includes(data[a]))
+			return false;
+	return true;
+});
+Pool.mockImplementation((_config) => {
+	return {
+		connect: jest.fn(),
+		query: queryFn
+	};
+});
+
 const settings = require('../modules/settings.js');
 require('dotenv').config();
 
@@ -11,7 +29,25 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // support url-encoded
 app.use('/heart', router);
+
+
 const db = require('../modules/database.js');
+const KEY = 'testkey';
+const authFn = jest.spyOn(db, 'authorize').mockImplementation((key)=>{
+	return KEY === key;
+});
+data = {
+	t: 42.42,
+	p: 45.42,
+	h: 42.42,
+	wt1: 42.42,
+	wt2: 99.99,
+	sm1: 42.42,
+	sm2: 42.42,
+	st1: 42.42,
+	st2: 43.42,
+	key: KEY
+};
 
 describe('heart', () => {
 	let sum = 'empty';
@@ -48,25 +84,19 @@ describe('heart', () => {
 		});
 	});
 
-	describe('valid data insertion', () => {
-		const data = {
-			t: 42.42,
-			p: 45.42,
-			h: 42.42,
-			wt1: 42.42,
-			wt2: 99.99,
-			sm1: 42.42,
-			sm2: 42.42,
-			st1: 42.42,
-			st2: 43.42,
-		};
-		db.pool.end();
-		const queryFn = jest.spyOn(db.pool, 'query').mockImplementation((q, values)=>{
-			for(const a in data)
-				if(!values.includes(data[a]))
-					return false;
-			return true;
+	describe('data insertion with invalid key', () => {
+		const badKeyData = Object.assign({}, data);
+		badKeyData.key = 'asdsadsadssda';
+		it('responses with 401 unauthorized', async () => {
+			const res = await request(app)
+				.post('/heart/data')
+				.send(badKeyData);
+			expect(res.status).toEqual(401);
 		});
+	});
+
+	describe('valid data insertion with valid key', () => {
+		data.key = KEY;
 		it('works with application/json', async () => {
 			const res = await request(app)
 				.post('/heart/data')
