@@ -1,5 +1,5 @@
 let data;
-let events = [];
+let events;
 let device; // this is bad
 
 function units(name) {
@@ -57,6 +57,10 @@ async function updateStatus() {
 	if(!device) device = Object.keys(body)[0];
 	if(body[device].data && (!data || data.at !== body[device].data.at))
 		updateData(body[device].data);
+	if(!events) { // first call
+		events = [];
+		$('#noEvents').addClass('show');
+	}
 	if(body[device].event && (events.length < body[device].event.length || events[0].at !== body[device].event[0].at))
 		updateEvents(body[device].event);
 	const dataAge = (Date.now() - new Date(data.at)) / 1000;
