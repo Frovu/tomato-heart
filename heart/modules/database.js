@@ -6,6 +6,7 @@ const pool = new Pool({
 	password: process.env.DB_PASSWORD,
 	port: process.env.DB_PORT,
 });
+const EVENTS_CACHE = process.env.EVENTS_CACHE || 5;
 
 const devices = {};
 async function getDevices() {
@@ -72,7 +73,13 @@ async function insert(devId, data, type) {
 	}
 	if(!last[devId]) last[devId] = {};
 	data.at = new Date();
-	last[devId][type] = data;
+	if(type === 'data') {
+		last[devId][type] = data;
+	} else {
+		if(!last[devId][type]) last[devId][type] = [];
+		last[devId][type].push(data);
+		if(last[devId][type].length > EVENTS_CACHE) last[devId][type].pop(0);
+	}
 }
 
 module.exports.validateData = validateData;
