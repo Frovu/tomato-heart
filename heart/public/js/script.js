@@ -116,7 +116,6 @@ async function submitSettings(event) {
 		console.error(e);
 		err('Error occured');
 	}
-
 }
 
 window.onload = async () => {
@@ -134,6 +133,6 @@ window.onload = async () => {
 		$(`#tWire${i+1}`).val(settings[i].wire);
 	}
 
-	updateStatus();
+	updateStatus(); // eslint-disable-line
 	$('#settingsForm').on('submit', submitSettings);
 };

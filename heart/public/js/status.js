@@ -36,7 +36,16 @@ function updateData(obj) {
 }
 
 function updateEvents(arr) {
-
+	events = arr;
+	const div = $('#eventsBox');
+	div.empty();
+	for(const ev of arr) {
+		const text = ev.msg;
+		const time = ev.at.toLocaleString('en-GB').replace(/\/\d{4},|:\d\d$/g, '');
+		const al = $(`<div role="alert">${text}<span class="float-right">${time}</span></div>`)
+			.addClass('mt-3 alert alert-light fade').appendTo(div);
+		setTimeout(()=>{al.addClass('show');}, 100);
+	}
 }
 
 async function updateStatus() {
@@ -48,7 +57,7 @@ async function updateStatus() {
 	if(!device) device = Object.keys(body)[0];
 	if(body[device].data && (!data || data.at !== body[device].data.at))
 		updateData(body[device].data);
-	if(body[device].event && (!events.length || events[0].at !== body[device].event[0].at))
+	if(body[device].event && (events.length < body[device].event.length || events[0].at !== body[device].event[0].at))
 		updateEvents(body[device].event);
 	const dataAge = (Date.now() - new Date(data.at)) / 1000;
 	$('#dataUpdated').text(dataAge.toFixed(0));
