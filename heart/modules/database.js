@@ -31,6 +31,9 @@ const FIELDS = {
 	}
 };
 
+// cache last data from devices
+const last = {};
+
 function authorize(key) {
 	return devices[key] || false;
 }
@@ -48,7 +51,7 @@ function validateData(data, type) {
 	} else if (type === 'event') {
 		return (typeof data.msg === 'string' &&
 			(typeof data.val === 'undefined' || typeof data.val === 'boolean'))
-			? data : false;
+			? {msg: data.msg, val: data.val} : false;
 	} else {
 		throw new Error('Unknown validate type');
 	}
@@ -67,9 +70,13 @@ async function insert(devId, data, type) {
 	} else {
 		throw new Error('Unknown insert type');
 	}
+	if(!last[devId]) last[devId] = {};
+	data.at = new Date();
+	last[devId][type] = data;
 }
 
 module.exports.validateData = validateData;
 module.exports.authorize = authorize;
 module.exports.insert = insert;
+module.exports.last = last;
 // module.exports.pool = pool;
