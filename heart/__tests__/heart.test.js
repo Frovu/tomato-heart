@@ -75,16 +75,17 @@ describe('heart', () => {
 		});
 	});
 
-	describe('invalid data insertion', () => {
+	describe('invalid data post', () => {
 		it('responses with 400', async () => {
 			const res = await request(app)
 				.post('/heart/data')
 				.send({t: 42, ad: 'asd'});
 			expect(res.status).toEqual(400);
+			expect(queryFn).not.toHaveBeenCalled();
 		});
 	});
 
-	describe('data insertion with invalid key', () => {
+	describe('data post with invalid key', () => {
 		const badKeyData = Object.assign({}, data);
 		badKeyData.key = 'asdsadsadssda';
 		it('responses with 401 unauthorized', async () => {
@@ -92,10 +93,11 @@ describe('heart', () => {
 				.post('/heart/data')
 				.send(badKeyData);
 			expect(res.status).toEqual(401);
+			expect(queryFn).not.toHaveBeenCalled();
 		});
 	});
 
-	describe('valid data insertion with valid key', () => {
+	describe('valid data post with valid key', () => {
 		data.key = KEY;
 		it('works with application/json', async () => {
 			const res = await request(app)
@@ -114,5 +116,63 @@ describe('heart', () => {
 			expect(queryFn).toHaveBeenCalled();
 			expect(queryFn).toHaveLastReturnedWith(true);
 		});
+	});
+
+	describe('invalid event post', () => {
+		it('forbids no message', async () => {
+			const body = {val: true, key: KEY};
+			const res = await request(app)
+				.post('/heart/event')
+				.send(body);
+			expect(res.status).toEqual(400);
+			expect(queryFn).not.toHaveBeenCalled();
+		});
+		it('forbids not string message', async () => {
+			const body = {msg: 42, val: true, key: KEY};
+			const res = await request(app)
+				.post('/heart/event')
+				.send(body);
+			expect(res.status).toEqual(400);
+			expect(queryFn).not.toHaveBeenCalled();
+		});
+		it('forbids not bool value message', async () => {
+			const body = {val: 42, key: KEY};
+			const res = await request(app)
+				.post('/heart/event')
+				.send(body);
+			expect(res.status).toEqual(400);
+			expect(queryFn).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('valid event post', () => {
+		it('responses with 401 if bad key', async () => {
+			const body = {msg: 'an event', key: 'baddd', val: true};
+			const res = await request(app)
+				.post('/heart/event')
+				.send(body);
+			expect(res.status).toEqual(401);
+			expect(queryFn).not.toHaveBeenCalled();
+		});
+		it('works with val', async () => {
+			const body = {msg: 'an event', key: KEY, val: true};
+			const res = await request(app)
+				.post('/heart/event')
+				.send(body);
+			expect(res.status).toEqual(200);
+			expect(queryFn).toHaveBeenCalled();
+		});
+		it('works without val', async () => {
+			const body = {msg: 'an event', key: KEY};
+			const res = await request(app)
+				.post('/heart/event')
+				.send(body);
+			expect(res.status).toEqual(200);
+			expect(queryFn).toHaveBeenCalled();
+		});
+	});
+
+	afterEach(() => {
+		queryFn.mockClear();
 	});
 });

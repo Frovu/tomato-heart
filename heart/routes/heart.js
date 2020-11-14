@@ -35,12 +35,12 @@ router.post('/data', async (req, res) => {
 router.post('/event', async (req, res) => {
 	try {
 		const data = typeof req.body === 'object' && req.body;
-		if(!data || typeof data.msg === 'string')
+		const val = data.val;
+		if(!data || typeof data.msg !== 'string' || (val && typeof val !== 'boolean'))
 			return res.sendStatus(400);
 		const devId = db.authorize(data.key);
 		if(!devId) // not a known device key
 			return res.sendStatus(401);
-		const val = data.val;
 		const q = `INSERT INTO events(devId, message${val?',value':''}) VALUES ($1,$2${val?',$3':''})`;
 		await db.pool.query(q, [devId, data.msg].concat(val?[val]:val));
 		return res.sendStatus(200);
