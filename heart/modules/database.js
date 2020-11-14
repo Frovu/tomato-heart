@@ -36,16 +36,40 @@ function authorize(key) {
 }
 
 function validateData(data, type) {
-	const result = {};
-	for(const f in FIELDS[type]) {
-		const val = parseFloat(data[f]);
-		if(!val || isNaN(val))
-			return false;
-		result[FIELDS[type][f]] = val;
+	if (type === 'data') {
+		const result = {};
+		for(const f in FIELDS[type]) {
+			const val = parseFloat(data[f]);
+			if(!val || isNaN(val))
+				return false;
+			result[FIELDS[type][f]] = val;
+		}
+		return result;
+	} else if (type === 'event') {
+		return (typeof data.msg === 'string' &&
+			(typeof data.val === 'undefined' || typeof data.val === 'boolean'))
+			? data : false;
+	} else {
+		throw new Error('Unknown validate type');
 	}
-	return result;
+}
+
+async function insert(devId, data, type) {
+	if (type === 'data') {
+		let i=1;
+		const fields = Object.keys(data);
+		const q = `INSERT INTO data (dev, ${fields.join(', ')}) VALUES ($1,${fields.map(()=>`$${++i}`).join(',')})`;
+		await pool.query(q, [devId].concat(Object.values(data)));
+	} else if (type === 'event') {
+		const valExists = typeof data.val !== 'undefined';
+		const q = `INSERT INTO events(devId, message${valExists?',value':''}) VALUES ($1,$2${valExists?',$3':''})`;
+		await pool.query(q, [devId, data.msg].concat(valExists?[data.val]:[]));
+	} else {
+		throw new Error('Unknown insert type');
+	}
 }
 
 module.exports.validateData = validateData;
 module.exports.authorize = authorize;
-module.exports.pool = pool;
+module.exports.insert = insert;
+// module.exports.pool = pool;
