@@ -28,3 +28,7 @@ textarea, input {
 	font-family: Courier New;
 	font-weight: 500;
 }
+
+.fade {
+	transition-duration: 0.5s !important;
+}
