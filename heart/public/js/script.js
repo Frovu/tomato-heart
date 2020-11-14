@@ -134,5 +134,6 @@ window.onload = async () => {
 		$(`#tWire${i+1}`).val(settings[i].wire);
 	}
 
+	updateStatus();
 	$('#settingsForm').on('submit', submitSettings);
 };

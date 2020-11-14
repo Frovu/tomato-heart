@@ -12,7 +12,26 @@ function updateData(obj) {
 	data = obj;
 	for(const i in data) {
 		if(i == 'at') continue;
-		$(`#${i}`).text(data[i].toFixed(1) + units(i));
+		const elem = $(`#${i}`);
+		elem.text(data[i].toFixed(1) + units(i));
+		if(i.includes('soil') || i.includes('wire')) {
+			elem.removeClass('text-danger text-warning');
+			const split = i.split('_');
+			const r = settings[parseInt(split[2])-1]; // eslint-disable-line
+			if(i.includes('wire')) {
+				if(data[i] - r.wire > 0)
+					elem.addClass('text-danger');
+				else if(data[i] - r.wire > -10)
+					elem.addClass('text-warning');
+			} else if(i.includes('temp')) {
+				// TODO: diffirentiate day and night
+				if(r.day[0] - data[i] > 0 || data[i] - r.day[1] > 0)
+					elem.addClass('text-danger');
+				else if(data[i] - r.day[0] < 1 || r.day[1] - data[i] < 1)
+					elem.addClass('text-warning');
+			}
+			// TODO: moisture ranges
+		}
 	}
 }
 
@@ -31,9 +50,8 @@ async function updateStatus() {
 		updateData(body[device].data);
 	if(body[device].event && (!events.length || events[0].at !== body[device].event[0].at))
 		updateEvents(body[device].event);
-	const age = Math.floor();
-	$('#dataUpdated').text('231213');
+	const dataAge = (Date.now() - new Date(data.at)) / 1000;
+	$('#dataUpdated').text(dataAge.toFixed(0));
 }
 
-updateStatus();
-setInterval(updateStatus, 10000);
+setInterval(updateStatus, 1000);
