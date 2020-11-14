@@ -34,7 +34,7 @@ router.post('/event', async (req, res) => {
 		const data = typeof req.body === 'object' && db.validateData(req.body, 'event');
 		if(!data || typeof data.msg !== 'string' || (data.val && typeof data.val !== 'boolean'))
 			return res.sendStatus(400);
-		const devId = db.authorize(data.key);
+		const devId = db.authorize(req.body.key);
 		if(!devId) // not a known device key
 			return res.sendStatus(401);
 		await db.insert(devId, data, 'event');

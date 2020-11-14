@@ -35,7 +35,7 @@ const FIELDS = {
 const last = {};
 
 function authorize(key) {
-	return devices[key] || false;
+	return key && devices[key] || false;
 }
 
 function validateData(data, type) {
