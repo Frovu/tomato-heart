@@ -3,12 +3,14 @@
       "0": {
         "day": [23, 27],
         "night": [16, 20],
-        "wire": 45
+        "wire": 45,
+        "on": true
       },
       "1": {
         "day": [20, 22],
         "night": [16, 18],
-        "wire": 45
+        "wire": 45,
+        "on": true
       }
     },
     "sum": "default"

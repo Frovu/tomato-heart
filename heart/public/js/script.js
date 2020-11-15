@@ -135,4 +135,5 @@ window.onload = async () => {
 
 	updateStatus(); // eslint-disable-line
 	$('#settingsForm').on('submit', submitSettings);
+	initsw(settings) // eslint-disable-line
 };

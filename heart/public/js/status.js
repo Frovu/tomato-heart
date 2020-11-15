@@ -49,6 +49,10 @@ function updateEvents(arr) {
 }
 
 async function updateStatus() {
+	if(!events) { // first call
+		events = [];
+		$('#noEvents').addClass('show');
+	}
 	const resp = await fetch('user/status');
 	if(resp.status != 200)
 		return console.log('can\'t fetch status');
@@ -57,10 +61,6 @@ async function updateStatus() {
 	if(!device) device = Object.keys(body)[0];
 	if(body[device].data && (!data || data.at !== body[device].data.at))
 		updateData(body[device].data);
-	if(!events) { // first call
-		events = [];
-		$('#noEvents').addClass('show');
-	}
 	if(body[device].event && (events.length < body[device].event.length || events[0].at !== body[device].event[0].at))
 		updateEvents(body[device].event);
 	const dataAge = (Date.now() - new Date(data.at)) / 1000;
