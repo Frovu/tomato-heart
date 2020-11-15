@@ -18,6 +18,7 @@ function readSettings() {
 				res[i][conv[dt]][conv[lh]] = parseFloat($(`#t${dt}${lh}${i+1}`).val());
 		}
 		res[i].wire = parseFloat($(`#tWire${i+1}`).val());
+		res[i].on = $(`#switch${i+1}`).prop('checked');
 	}
 	return res;
 }
@@ -37,6 +38,8 @@ function diffSettings(newSettings) {
 		const news = newSettings[i].wire;
 		if(olds != news)
 			html += `<p>section #${i+1} Max Wire Temperature <b>from ${olds} to <span class="v">${news}</span></b></p>`;
+		if(settings[i].on !== newSettings[i].on)
+			html += `<p><span class="text-danger">WARNING!</span> turning section #${i+1} active controls <span class="v ${newSettings[i].on?'':'text-danger'}">${newSettings[i].on?'ON':'OFF'}</span></b></p>`;
 	}
 	return html;
 }
@@ -65,6 +68,7 @@ function showModal() { // eslint-disable-line
 			$(`#tWire${i+1}`).removeClass('is-invalid');
 		}
 	}
+	// if input valid
 	if(!flagInvalid) {
 		const diff = diffSettings(newSettings);
 		if(diff) {
