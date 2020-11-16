@@ -6,4 +6,4 @@
 + continuously check for certain conditions (specified in settings) and switch relays if needed
 
 ### NodeMCU
-Used modules firmware list: `adc bme280 file gpio http i2c net node ow pwm2 rtctime sjson sntp tmr uart wifi`
+Used modules firmware list: `adc bme280_math file gpio http i2c net node ow pwm2 rtctime sjson sntp tmr uart wifi`
