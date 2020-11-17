@@ -54,32 +54,69 @@ function diffSettings(newSettings) {
 	return html;
 }
 
-function showModal() { // eslint-disable-line
-	const newSettings = readSettings();
-	// validate input
-	let flagInvalid = false;
+function validateSettings(obj) {
+	let isValid = true;
 	for(const i of [0, 1]) {
 		for(const dt of ['Day', 'Night']) {
 			for(const lh of ['Low', 'High']) {
-				const tv = newSettings[i][conv[dt]][conv[lh]];
+				const tv = obj[i][conv[dt]][conv[lh]];
 				if(isNaN(tv) || tv < ranges.temp[0] || tv > ranges.temp[1]) {
 					$(`#t${dt}${lh}${i+1}`).addClass('is-invalid');
-					flagInvalid = true;
+					isValid = false;
 				} else {
 					$(`#t${dt}${lh}${i+1}`).removeClass('is-invalid');
 				}
 			}
 		}
-		const wr = newSettings[i].wire;
+		const wr = obj[i].wire;
 		if(isNaN(wr) || wr < ranges.wireTemp[0] || wr > ranges.wireTemp[1]) {
-			flagInvalid = true;
+			isValid = false;
 			$(`#tWire${i+1}`).addClass('is-invalid');
 		} else {
 			$(`#tWire${i+1}`).removeClass('is-invalid');
 		}
 	}
+
+	const ncnv = {heartbeat: 'rateBeat', datarate: 'rateData'};
+	for(const i of ['heartbeat', 'datarate']) {
+		const val = obj[i];
+		if(!val || isNaN(val) || val<ranges[i][0] || val>ranges[i][1]) {
+			isValid = false;
+			$(`#${ncnv[i]}`).addClass('is-invalid');
+		} else {
+			$(`#${ncnv[i]}`).removeClass('is-invalid');
+		}
+	}
+
+	const dncnv = ['Start', 'End'];
+	let isValidDay = true;
+	for(const i of [0, 1]) {
+		const val = obj.day[i];
+		if(!val || !val.match(/^[0-2]?\d:[0-5]\d$/)) {
+			isValid = false; isValidDay = false;
+			$(`#day${dncnv[i]}`).addClass('is-invalid');
+		} else {
+			$(`#day${dncnv[i]}`).removeClass('is-invalid');
+		}
+	}
+	// check that start is before end
+	const gd = s => parseInt(s.split(':')[0]) * 60 + parseInt(s.slice(3));
+	if(isValidDay && gd(obj.day[0]) >= gd(obj.day[1])) {
+		isValid = false;
+		$('#dayFeedback').text('Must be more or equal than start');
+		$('#dayEnd').addClass('is-invalid');
+	} else {
+		$('#dayFeedback').text('Invalid input');
+		isValidDay && $('#dayEnd').removeClass('is-invalid');
+	}
+
+	return isValid;
+}
+
+function showModal() { // eslint-disable-line
+	const newSettings = readSettings();
 	// if input valid
-	if(!flagInvalid) {
+	if(validateSettings(newSettings)) {
 		const diff = diffSettings(newSettings);
 		if(diff) {
 			$('#modalBody').html(diff);
