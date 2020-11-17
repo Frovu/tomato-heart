@@ -25,7 +25,7 @@ module.exports.validate = obj => {
 	const day = [];
 	for(const i of [0, 1]) {
 		const v = obj.day[i];
-		if(!v.match(/^\d\d:\d\d$/)) return false;
+		if(!v.match(/^\d?\d:\d\d$/)) return false;
 		const time = v.split(':').map(a => parseInt(a));
 		if(isNaN(time[0]) || time[0]<0 || time[0]>23
 			|| isNaN(time[1]) || time[1]<0 || time[0]>59)
@@ -36,13 +36,15 @@ module.exports.validate = obj => {
 	// per section settings
 	for(const i of ['0', '1']) {
 		for(const j of ['day', 'night'])
-			if(!inRange(obj[i][j], ranges.temp))
-				return false;
+			for(const v of obj[i][j]) // low and up
+				if(!inRange(v, ranges.temp))
+					return false;
 		if(!inRange(obj[i].wire, ranges.wireTemp))
 			return false;
 		if(typeof obj[i].on !== 'boolean')
 			return false;
 	}
+	return true;
 };
 
 module.exports.update = newSettings => {
