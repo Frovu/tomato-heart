@@ -8,11 +8,15 @@ function units(name) {
 			: name.includes('humid') || name.includes('moist') ? ' %' : '';
 }
 
-function updateData(obj) {
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+async function updateData(obj) {
 	data = obj;
 	for(const i in data) {
 		if(i == 'at') continue;
 		const elem = $(`#${i}`);
+		elem.text('...');
+		await delay(100);
 		elem.text(data[i].toFixed(1) + units(i));
 		if(i.includes('soil') || i.includes('wire')) {
 			elem.removeClass('text-danger text-warning');
