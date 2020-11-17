@@ -43,12 +43,13 @@ function validateData(data, type) {
 	if (type === 'data') {
 		const result = {};
 		for(const f in FIELDS[type]) {
+			if(!data[f]) continue; // FIXME: For now allow partitial data prob disable later
 			const val = parseFloat(data[f]);
 			if(!val || isNaN(val))
 				return false;
 			result[FIELDS[type][f]] = val;
 		}
-		return result;
+		return Object.keys(result).length ? result : false;
 	} else if (type === 'event') {
 		return (typeof data.msg === 'string' &&
 			(typeof data.val === 'undefined' || typeof data.val === 'boolean'))

@@ -79,7 +79,7 @@ describe('heart', () => {
 		it('responses with 400', async () => {
 			const res = await request(app)
 				.post('/heart/data')
-				.send({t: 42, ad: 'asd'});
+				.send({t: 'a42', ad: 'asd'});
 			expect(res.status).toEqual(400);
 			expect(queryFn).not.toHaveBeenCalled();
 		});
