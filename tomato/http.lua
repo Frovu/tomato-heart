@@ -3,7 +3,7 @@ dofile("wifi.lua")
 settings = nil
 local hashsum = ""
 
-heartbeat = function()
+function heartbeat()
 	if not ALLOW_NET then return false end
 	http.get(string.format("%s?s=%s", uri, hashsum), nil, function(code, data)
 		if (code < 0) then
@@ -25,16 +25,17 @@ heartbeat = function()
 	end)
 end
 
-send = function(type, data)
+function send(type, data)
 	if not ALLOW_NET then return false end
 	local body = sjson.encode(data)
+	print("sending "..type..": "..body)
 	http.post(string.format("%s/%s", uri, type=="data" and "data" or "event"),
 		"Content-Type: application/json\r\n", body, function(code, data)
 		if (code < 0) then
 			print("HTTP request failed ()", type)
 		else
 			if (code == 400) then
-				print("Invalid ", type)
+				print("Invalid "..type)
 			else
 				if (code ~= 200) then
 					print("Failed to send ", type)

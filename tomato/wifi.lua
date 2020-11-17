@@ -49,8 +49,6 @@ if not sta_config.pwd and #tostring(sta_config.ssid) == 0 then
 	startConfServer()
 end
 
-server = nil
-
 local URI_FNAME = "uri"
 if file.open(URI_FNAME, "r") then
 	uri = file.read()
@@ -58,12 +56,6 @@ if file.open(URI_FNAME, "r") then
 	file.close()
 else
 	uri = "http://192.168.1.113:3050/heart"
-end
-
-local index = ""
-if file.open("index.html", "r") then
-	index = file.read(4096)
-	file.close()
 end
 
 function receiver(sck, data)
@@ -95,15 +87,15 @@ function receiver(sck, data)
 		end
 	else
 		print("http get/?")
+		local index = "can't read html"
+		if file.open("index.html", "r") then
+			index = file.read(4096)
+			file.close()
+		end
 		sck:send(string.format(index, sta_config.ssid or "", sta_config.pwd or "", uri or ""))
 		sck:on("sent", function(conn) conn:close() end)
 	end
 end
-
-wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)
-	print("\nSTA - CONNECTED".."\nSSID: "..T.SSID.."\nBSSID: "..
-	T.BSSID.."\nChannel: "..T.channel)
-end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
 	print("\nSTA - DISCONNECTED".."\nSSID: "..T.SSID.."\nBSSID: "..
@@ -117,21 +109,4 @@ wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
 	T.netmask.."\nGateway IP: "..T.gateway)
 	ALLOW_NET = true
 	stopConfServer()
-end)
-
-wifi.eventmon.register(wifi.eventmon.STA_DHCP_TIMEOUT, function()
-	print("\nSTA - DHCP TIMEOUT")
-end)
-
-wifi.eventmon.register(wifi.eventmon.AP_STACONNECTED, function(T)
-	print("\nAP - STATION CONNECTED".."\nMAC: "..T.MAC.."\nAID: "..T.AID)
-end)
-
-wifi.eventmon.register(wifi.eventmon.AP_STADISCONNECTED, function(T)
-	print("\nAP - STATION DISCONNECTED".."\nMAC: "..T.MAC.."\nAID: "..T.AID)
-end)
-
-wifi.eventmon.register(wifi.eventmon.WIFI_MODE_CHANGED, function(T)
-	print("\nSTA - WIFI MODE CHANGED".."\nold_mode: "..
-	T.old_mode.."\nnew_mode: "..T.new_mode)
 end)
