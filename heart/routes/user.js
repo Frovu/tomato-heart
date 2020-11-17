@@ -21,7 +21,7 @@ router.get('/status', (req, res) => {
 // update settings
 router.post('/', (req, res) => {
 	const set = req.body && req.body.settings;
-	if(!set || !Object.keys(set).length)
+	if(!set || !Object.keys(set).length || !settings.validate(set))
 		return res.sendStatus(400);
 	if(!req.body.secret || req.body.secret !== process.env.SECRET)
 		return res.sendStatus(401);

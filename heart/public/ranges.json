@@ -2,6 +2,5 @@
 	"heartbeat": [1, 600],
 	"datarate": [10, 3600],
 	"temp": [10, 30],
-	"wireTemp": [30, 70],
-	"dayDuration": [8, 24]
+	"wireTemp": [30, 70]
 }
