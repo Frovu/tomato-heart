@@ -44,7 +44,9 @@ function send(type, data)
 		elseif (code == 401) then
 			print("Unauthorized for send")
 		elseif (code ~= 200) then
-				print("Failed to send ", type)
+			print("Failed to send "..type)
+		else
+			print("Successfuly sent "..type)
 		end
 	end)
 end
