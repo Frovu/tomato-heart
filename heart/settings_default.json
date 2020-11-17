@@ -1,5 +1,8 @@
 {
     "settings": {
+      "heartbeat": 5,
+      "datarate": 60,
+      "day": ["8:00", "20:00"],
       "0": {
         "day": [23, 27],
         "night": [16, 20],

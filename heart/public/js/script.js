@@ -19,6 +19,9 @@ function readSettings() {
 		}
 		res[i].wire = parseFloat($(`#tWire${i+1}`).val());
 		res[i].on = $(`#switch${i+1}`).prop('checked');
+		res.heartbeat = parseInt($('#rateBeat').val());
+		res.datarate = parseInt($('#rateData').val());
+		res.day = [$('#dayStart').val(), $('#dayEnd').val()];
 	}
 	return res;
 }
@@ -41,6 +44,13 @@ function diffSettings(newSettings) {
 		if(settings[i].on !== newSettings[i].on)
 			html += `<p><span class="text-danger">WARNING!</span> turning section #${i+1} active controls <span class="v ${newSettings[i].on?'':'text-danger'}">${newSettings[i].on?'ON':'OFF'}</span></b></p>`;
 	}
+	for(const i of ['heartbeat', 'datarate'])
+		if(settings[i] !== newSettings[i])
+			html += `<p>${i} <b>from ${settings[i]} to <span class="v">${newSettings[i]}</span></b></p>`;
+	for(const i of [0, 1])
+		if(settings.day[i] !== newSettings.day[i])
+			html += `<p> Light day ${i==0?'start':'end'} time <b>from ${settings.day[i]} to <span class="v">${newSettings.day[i]}</span></b></p>`;
+
 	return html;
 }
 
@@ -136,6 +146,10 @@ window.onload = async () => {
 				$(`#t${dt}${lh}${i+1}`).val(settings[i][conv[dt]][conv[lh]]);
 		$(`#tWire${i+1}`).val(settings[i].wire);
 	}
+	$('#rateBeat').val(settings.heartbeat);
+	$('#rateData').val(settings.datarate);
+	$('#dayStart').val(settings.day[0]);
+	$('#dayEnd').val(settings.day[1]);
 
 	updateStatus(); // eslint-disable-line
 	$('#settingsForm').on('submit', submitSettings);
