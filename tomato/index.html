@@ -1,31 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-	<head>
-		<meta charset="utf-8">
-		<title>Tomato esp8266</title>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-	</head>
-	<body>
-		<div class="row m-3">
-			<form class="col-md-8 col-12" action="" method="post">
-				<div class="form-row">
-					<div class="form-group col-xl-3 col-md-4 col-6">
-						<label for="ssid">SSID</label>
-						<input type="text" class="form-control" name="ssid" value="%s">
-					</div>
-					<div class="form-group col-xl-3 col-md-4 col-6">
-						<label for="pwd">Password</label>
-						<input type="text" class="form-control" name="pwd" value="%s">
-					</div>
-				</div>
-				<div class="form-row">
-					<div class="form-group col-xl-6 col-md-8 col-12">
-						<label for="uri">Target URI</label>
-						<input type="text" class="form-control" name="uri" value="%s">
-					</div>
-				</div>
-				<input type="submit" class="btn btn-primary mt-3 col-xl-6 col-md-8 col-12" value="Update Settings">
-			</form>
-		</div>
-	</body>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>TomatoHeart</title>
+</head>
+<body>
+	<form action="" method="post">
+		<label for="ssid">SSID</label>
+		<input type="text" class="form-control" name="ssid" value="%s"><br>
+		<label for="pwd">Password</label>
+		<input type="text" class="form-control" name="pwd" value="%s"><br>
+		<label for="uri">Target URI</label>
+		<input type="text" class="form-control" name="uri" value="%s"><br>
+		<input type="submit" class="btn btn-primary mt-3 col-xl-6 col-md-8 col-12" value="Update Settings">
+	</form>
+</body>
 </html>
