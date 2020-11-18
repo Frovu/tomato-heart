@@ -45,6 +45,8 @@ describe('settings', () => {
 			expect(settings.validate(newsp('1'))).toEqual(false);
 			changes = {on: 'false'};
 			expect(settings.validate(newsp('0'))).toEqual(false);
+			changes = {on: true};
+			expect(settings.validate(newsp('1'))).toEqual(true);
 		});
 		it('checks that numbers are numbers', () => {
 			changes = {day: [11, '12']};
@@ -57,9 +59,26 @@ describe('settings', () => {
 			expect(settings.validate(news())).toEqual(false);
 			changes = {heartbeat: NaN};
 			expect(settings.validate(news())).toEqual(false);
+			changes = {datarate: true};
+			expect(settings.validate(news())).toEqual(false);
 		});
-		xit('checks ranges #1', () => {
-			expect(settings.validate(mock_settings.sum)).toEqual(false);
+		it('checks ranges', () => {
+			changes = {day: [11, 999]};
+			expect(settings.validate(newsp('1'))).toEqual(false);
+			changes = {day: [-9, 14]};
+			expect(settings.validate(newsp('0'))).toEqual(false);
+			changes = {day: [15, 20]};
+			expect(settings.validate(newsp('1'))).toEqual(true);
+			changes = {heartbeat: -1};
+			expect(settings.validate(news())).toEqual(false);
+			changes = {datarate: 1e4};
+			expect(settings.validate(news())).toEqual(false);
+			changes = {datarate: -1};
+			expect(settings.validate(news())).toEqual(false);
+			changes = {wire: 1};
+			expect(settings.validate(newsp('0'))).toEqual(false);
+			changes = {wire: 40};
+			expect(settings.validate(newsp('0'))).toEqual(true);
 		});
 	});
 });
