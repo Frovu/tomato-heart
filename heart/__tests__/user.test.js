@@ -17,6 +17,7 @@ Pool.mockImplementation((_config) => {
 const fs = require('fs');
 jest.spyOn(fs, 'writeFileSync').mockImplementation(()=>{});
 const settings = require('../modules/settings.js');
+const sets = settings.get();
 require('dotenv').config();
 
 const express = require('express');
@@ -53,18 +54,19 @@ describe('user api', () => {
 		it('responds 401 if no secret', async () => {
 			const res = await request(app)
 				.post('/user')
-				.send({settings: {asd: 123}});
+				.send({settings: sets.settings});
 			expect(res.status).toEqual(401);
 		});
 		it('responds 401 if secret bad', async () => {
 			const res = await request(app)
 				.post('/user')
-				.send({settings: {asd: 123}, secret: '__Invalid__'});
+				.send({settings: sets.settings, secret: '__Invalid__'});
 			expect(res.status).toEqual(401);
 		});
 
 		it('changes settings if all ok', async () => {
-			const changes = {settings: {a: 123}};
+			const changes = {settings: Object.assign({}, sets.settings)};
+			changes.settings.heartbeat = 42;
 			changes.secret = process.env.SECRET;
 			let res = await request(app)
 				.post('/user')
