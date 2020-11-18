@@ -37,8 +37,8 @@ module.exports.validate = obj => {
 		// per section settings
 		for(const i of ['0', '1']) {
 			for(const j of ['day', 'night'])
-				for(const v of obj[i][j]) // low and up
-					if(!inRange(v, ranges.temp))
+				for(const v of [0, 1]) // low and up
+					if(!inRange(obj[i][j][v], ranges.temp))
 						return false;
 			if(!inRange(obj[i].wire, ranges.wireTemp))
 				return false;
