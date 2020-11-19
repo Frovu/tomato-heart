@@ -12,37 +12,42 @@ const COLORS = {
 	h: 'yellow'
 };
 
-function initPlot(data, fields) {
-	plot = new Chart($('#plot'), { // eslint-disable-line
-		type: 'line',
-		data: {
-			datasets: fields.map(f => {return {
-				label: FIELDS[f],
-				data: data[f],
-				borderColor: COLORS[f],
-				fill: false,
-				yAxisID: `${f}-y-axis`
-			};})
-		},
-		options: {
-			legend: {
-				display: true,
-				position: 'top'
-			},
-			scales: {
-				xAxes: [{
+function updatePlot(data, fields) {
+	if(!plot) {
+		plot = new Chart($('#plot'), { // eslint-disable-line
+			type: 'line',
+			data: { },
+			options: {
+				legend: {
 					display: true,
-					type: 'time',
-					distribution: 'series'
-				}],
-				yAxes: fields.map(f => {return {
-					id: `${f}-y-axis`,
-					type: 'linear',
-					display: false
-				};})
+					position: 'top'
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						type: 'time',
+						distribution: 'series'
+					}]
+				}
 			}
-		}
+		});
+	}
+	plot.data.datasets = fields.map(f => {return {
+		label: FIELDS[f],
+		data: data[f],
+		borderColor: COLORS[f],
+		fill: false,
+		yAxisID: `${f}-y-axis`
+	};});
+	plot.options.scales.yAxes = fields.map(f => {return {
+		id: `${f}-y-axis`,
+		type: 'linear',
+		display: false
+	};});
+	plot.update({
+		duration: 800
 	});
+
 }
 
 function encodeParams(obj) {
@@ -70,11 +75,7 @@ async function update() {
 			plotData[f].push({t: r[0], y: r[idx[f]]});
 		}
 	}
-	if(plot) {
-		console.log('exists');
-	} else {
-		initPlot(plotData, fields);
-	}
+	updatePlot(plotData, fields);
 }
 
 update();
