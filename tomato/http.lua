@@ -14,6 +14,38 @@ else
 	auth_key = "4N0nYM0u2"
 end
 
+function readSettings()
+	if file.open("settings.json", "r") then
+		local tmp = sjson.decode(file.read(4096))
+		file.close()
+		if tmp.sum and tmp.settings then
+			settings = tmp.settings
+			sum = tmp.sum
+			print("successfuly read from settings.json")
+		else
+			print("settings.json seems invalid")
+		end
+	else
+		print("failed to read settings.json")
+	end
+end
+readSettings()
+
+-- handle brand new settings
+function settingsUpdate()
+	print("Settings updated, reiniting alarms")
+	initAlarms(settings.heartbeat, settings.datarate)
+
+	if file.open("settings.json", "w") then
+		local tmp = {settings=settings, sum=hashsum}
+		file.write(sjson.encode(tmp))
+		file.close()
+		print("saved to settings.json")
+	else
+		print("failed to write settings.json")
+	end
+end
+
 function heartbeat()
 	if not ALLOW_NET then return false end
 	http.get(string.format("%s?s=%s", uri, hashsum), nil, function(code, data)
@@ -22,7 +54,7 @@ function heartbeat()
 			if tmp.settings and tmp.sum then
 				settings = tmp.settings
 				hashsum = tmp.sum
-				print("Settings updated")
+				settingsUpdate()
 			else
 				print("Invalid settings body")
 			end
