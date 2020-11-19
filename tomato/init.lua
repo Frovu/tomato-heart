@@ -5,20 +5,24 @@ local LED_PIN = 4
 local HEARTBEAT_RATE = 5000
 local DATA_RATE = 60 -- seconds
 
-local data_rate_cycles = math.floor( DATA_RATE * 1000 / HEARTBEAT_RATE )
-local counter = data_rate_cycles - 2
-print("\nRates, s: heartbeat="..(HEARTBEAT_RATE/1000).." data="..data_rate_cycles*HEARTBEAT_RATE/1000)
-
 if adc.force_init_mode(adc.INIT_ADC) then
 	node.restart()
 	return
 end
-
 gpio.mode(LED_PIN, gpio.OUTPUT)
 gpio.write(LED_PIN, gpio.HIGH)
 
--- main event
-tmr.create():alarm(HEARTBEAT_RATE, tmr.ALARM_AUTO, function()
+local heart_tmr = tmr.create();
+function initAlarms(h_rate, d_rate)
+	data_rate_cycles = math.floor( d_rate * 1000 / h_rate )
+	counter = data_rate_cycles - 2
+	print("\nInit timers with rates: heartbeat="..(h_rate/1000).." data="..data_rate_cycles*h_rate/1000)
+	heart_tmr:unregister()
+	heart_tmr:alarm(h_rate, tmr.ALARM_AUTO, heartbeat_callback)
+end
+
+-- main repeating event
+function heartbeat_callback()
 	-- blink if ok reverse blink if settings server running
 	gpio.write(LED_PIN, server and gpio.HIGH or gpio.LOW)
 	heartbeat()
@@ -28,4 +32,7 @@ tmr.create():alarm(HEARTBEAT_RATE, tmr.ALARM_AUTO, function()
 		counter = 0
 		measureAndSend()
 	end
-end)
+end
+
+initAlarms(settings and settings.heartbeat or HEARTBEAT_RATE,
+	settings and settings.datarate or DATA_RATE)
