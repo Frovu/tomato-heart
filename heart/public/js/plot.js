@@ -1,25 +1,28 @@
 let plot;
 
-function initPlot(data) {
+const FIELDS = {
+	t: 'temperature',
+	p: 'pressure',
+	h: 'humidity'
+};
+
+const COLORS = {
+	t: 'cyan',
+	p: 'blue',
+	h: 'yellow'
+};
+
+function initPlot(data, fields) {
 	plot = new Chart($('#plot'), { // eslint-disable-line
 		type: 'line',
 		data: {
-			datasets: [
-				{
-					label: 'tempearture',
-					data: data.t,
-					borderColor: 'cyan',
-					fill: false,
-					yAxisID: 't-y-axis'
-				},
-				{
-					label: 'pressure',
-					data: data.p,
-					borderColor: 'blue',
-					fill: false,
-					yAxisID: 'p-y-axis'
-				}
-			]
+			datasets: fields.map(f => {return {
+				label: FIELDS[f],
+				data: data[f],
+				borderColor: COLORS[f],
+				fill: false,
+				yAxisID: `${f}-y-axis`
+			};})
 		},
 		options: {
 			legend: {
@@ -28,18 +31,15 @@ function initPlot(data) {
 			},
 			scales: {
 				xAxes: [{
+					display: true,
 					type: 'time',
 					distribution: 'series'
 				}],
-				yAxes: [{
-					id: 't-y-axis',
+				yAxes: fields.map(f => {return {
+					id: `${f}-y-axis`,
 					type: 'linear',
-					position: 'left'
-				}, {
-					id: 'p-y-axis',
-					type: 'linear',
-					position: 'left'
-				}]
+					display: false
+				};})
 			}
 		}
 	});
@@ -51,23 +51,29 @@ function encodeParams(obj) {
 }
 
 async function update() {
-	const fields = ['t', 'p'];
+	const fields = ['t', 'p', 'h'];
 	const params = {
-		fields: fields.join(',')
+		fields: fields.join(','),
+		from: Math.floor(Date.now()/1000 - 3600)
 	};
 	const resp = await fetch(`user/data${encodeParams(params)}`, { method: 'GET' });
 	if (resp.status !== 200)
 		return console.log('Failed to fetch data', resp.status);
 	const data = await resp.json();
-	const plotData = {t: [], p: []};
+	const plotData = {}; const idx = {};
+	for(const f of fields) {
+		plotData[f] = [];
+		idx[f] = data.fields.indexOf(FIELDS[f]);
+	}
 	for(const r of data.rows) {
-		plotData.t.push({t: r[0], y: r[1]});
-		plotData.p.push({t: r[0], y: r[2]});
+		for(const f of fields) {
+			plotData[f].push({t: r[0], y: r[idx[f]]});
+		}
 	}
 	if(plot) {
 		console.log('exists');
 	} else {
-		initPlot(plotData);
+		initPlot(plotData, fields);
 	}
 }
 
