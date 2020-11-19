@@ -83,8 +83,30 @@ async function insert(devId, data, type) {
 	}
 }
 
+async function get(params) {
+	const fields = typeof params.fields !== 'string' ? []
+		: params.fields.split(',').reduce((a, f) => FIELDS.data[f] ? a.concat([FIELDS.data[f]]) : a, []);
+	if(!fields.length) return null;
+	const from = params.from && parseInt(params.from);
+	const to = params.to && parseInt(params.to);
+	if((from && (isNaN(from) || from < 0)) || (to && (isNaN(to) || to < 0)))
+		return null;
+	const q = `SELECT at,${fields.join(',')} FROM data ` + ((from||to)?'WHERE ':'')
+		+ (from?`at >= to_timestamp(${from}) `:'') + (to?(from?'AND ':'') + `at < to_timestamp(${to})`:'');
+	try {
+		const res = await pool.query({ rowMode: 'array', text: q});
+		return {
+			rows: res.rows,
+			fields: res.fields.map(f => f.name)
+		};
+	} catch (e) {
+		return null;
+	}
+}
+
 module.exports.validateData = validateData;
 module.exports.authorize = authorize;
 module.exports.insert = insert;
 module.exports.last = last;
+module.exports.get = get;
 // module.exports.pool = pool;

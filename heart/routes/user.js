@@ -18,6 +18,15 @@ router.get('/status', (req, res) => {
 	return res.status(200).json(db.last);
 });
 
+// query data
+router.get('/data', async (req, res) => {
+	const resp = await db.get(req.query);
+	if(resp)
+		res.status(200).json(resp);
+	else
+		res.sendStatus(400);
+});
+
 // update settings
 router.post('/', (req, res) => {
 	const set = req.body && req.body.settings;
