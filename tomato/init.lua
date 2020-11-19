@@ -2,7 +2,7 @@ dofile("sensors.lua")
 dofile("http.lua")
 
 local LED_PIN = 4
-local HEARTBEAT_RATE = 5000
+local HEARTBEAT_RATE = 5 -- seconds
 local DATA_RATE = 60 -- seconds
 
 if adc.force_init_mode(adc.INIT_ADC) then
@@ -14,11 +14,11 @@ gpio.write(LED_PIN, gpio.HIGH)
 
 local heart_tmr = tmr.create();
 function initAlarms(h_rate, d_rate)
-	data_rate_cycles = math.floor( d_rate * 1000 / h_rate )
+	data_rate_cycles = math.floor( d_rate / h_rate )
 	counter = data_rate_cycles - 2
-	print("\nInit timers with rates: heartbeat="..(h_rate/1000).." data="..data_rate_cycles*h_rate/1000)
+	print("\nInit timers with rates: heartbeat="..(h_rate).." data="..data_rate_cycles*h_rate)
 	heart_tmr:unregister()
-	heart_tmr:alarm(h_rate, tmr.ALARM_AUTO, heartbeat_callback)
+	heart_tmr:alarm(h_rate * 1000, tmr.ALARM_AUTO, heartbeat_callback)
 end
 
 -- main repeating event
