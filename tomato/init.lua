@@ -3,6 +3,8 @@ if adc.force_init_mode(adc.INIT_ADC) then
 	return
 end
 
+dofile("config.lua")
+
 local sensors = require("sensors")
 local internet = require("internet")
 

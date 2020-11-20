@@ -1,5 +1,5 @@
 heart/node_modules
 heart/settings.json
 heart/.env
-tomato/key
+tomato/config.lua
 *.log

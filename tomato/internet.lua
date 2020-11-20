@@ -3,15 +3,9 @@ dofile("wifi.lua")
 settings = nil
 local hashsum = ""
 
-local auth_key = ""
-if file.open("key", "r") then
-	auth_key = file.readline()
-	auth_key = auth_key:sub(-1,-1) == '\n' and auth_key:sub(0,-2) or auth_key
-	file.close()
-	print("Device auth key = "..auth_key)
-else
-	print("\n\nWARN! failed to read auth key\n")
-	auth_key = "4N0nYM0u2"
+local auth_key = AUTH_KEY or "4N0nYM0u2"
+if not AUTH_KEY then
+	print("\n\nWARN! failed to get auth key\n")
 end
 
 do
