@@ -13,34 +13,50 @@ do
 end
 
 local ds18b20 = require("ds18b20")
-local pin = 3
+local pin = DS18B20_PIN
 ds18b20.init_one(pin)
-local function read18b20()
+
+local function read_18b20(data, cb)
 	ds18b20.read(pin, function(res)
-		for k, v in pairs(res) do
-			print(ds18b20.to_hex(k)..": "..v)
+		for role, addr in pairs(DS18B20_DEV_ADDR) do
+			if not res[addr] then
+				print("ds18b20 dev not found for "..role)
+			else
+				print(role.." = "..res[addr])
+				data[role] = res[addr]
+			end
 		end
+		cb()
 	end)
 end
 
-local function measureAndSend(sender)
-	if not bme280sensor then return false end
+local function read_bme280(data, cb)
+	if not bme280sensor then return cb() end
 	bme280sensor:startreadout(function(T, P, H)
 		if not T or not P or not H then
 			print("bme280 returned", T, P, H)
-			return
+			return cb()
 		end
-		print(string.format("T=%.2f P=%.2f H=%.2f", T, P, H))
-		local data = {
-			t=string.format("%.2f", T),
-			p=string.format("%.2f", P),
-			h=string.format("%.2f", H)
-		}
-		sender("data", data)
+		print(string.format("BME280: T=%.2f P=%.2f H=%.2f", T, P, H))
+		data.t = T
+		data.p = P
+		data.h = H
+		cb()
 	end, BME_RESPONSE_DELAY)
 end
 
+local function measure_and_send(sender)
+	local data = {}
+	read_bme280(data, function()
+		read_18b20(data, function()
+			for k, v in pairs(data) do
+				data[k] = string.format("%.2f", v)
+			end
+			sender("data", data)
+		end)
+	end)
+end
+
 return {
-	read18b20 = read18b20,
-	measure = measureAndSend
+	measure = measure_and_send
 }

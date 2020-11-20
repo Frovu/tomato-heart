@@ -35,7 +35,6 @@ function heartbeat_callback()
 		counter = 0
 		sensors.measure(internet.send)
 	end
-	sensors.read18b20()
 end
 
 initAlarms(settings and settings.heartbeat or HEARTBEAT_RATE,

@@ -19,9 +19,9 @@ local function init_one(pin)
 	while addr do
 		if ow.crc8(addr:sub(1,7)) == addr:byte(8) then -- verify crc
 			devices[pin][#devices[pin]+1] = addr
-			print("found dev: "..addr)
+			print("found dev: "..to_hex(addr))
 		else
-			print("wrong crc: "..addr)
+			print("wrong crc: "..to_hex(addr))
 		end
 		addr = ow.search(pin) -- search further
 	end
@@ -43,7 +43,7 @@ local function read(pin, callback)
 			local data = ow.read_bytes(pin, 9)
 			if ow.crc8(string.sub(data, 1, 8)) == data:byte(9) then
 				local t = ((data:byte(1) + data:byte(2) * 256) * 625) / 10000
-				values[addr] = t
+				values[to_hex(addr)] = t
 			end
 		end
 		callback(values)
@@ -53,6 +53,5 @@ end
 return {
 	devices = devices,
 	init_one = init_one,
-	to_hex = to_hex,
 	read = read
 }
