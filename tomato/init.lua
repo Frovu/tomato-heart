@@ -4,7 +4,7 @@ if adc.force_init_mode(adc.INIT_ADC) then
 end
 
 local sensors = require("sensors")
-local http = require("http")
+local internet = require("internet")
 
 local LED_PIN = 4
 local HEARTBEAT_RATE = 5 -- seconds
@@ -26,12 +26,12 @@ end
 function heartbeat_callback()
 	-- blink if ok reverse blink if settings server running
 	gpio.write(LED_PIN, ALLOW_NET and gpio.LOW or gpio.HIGH)
-	http.heartbeat()
+	internet.heartbeat()
 	gpio.write(LED_PIN, ALLOW_NET and gpio.HIGH or gpio.LOW)
 	counter = counter + 1
 	if counter >= data_rate_cycles then
 		counter = 0
-		sensors.measure(http.send)
+		sensors.measure(internet.send)
 	end
 end
 
