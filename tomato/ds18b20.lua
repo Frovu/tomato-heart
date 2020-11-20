@@ -6,6 +6,11 @@ local READ_DELAY = 750 -- 750 ms as for 12-bit res per datasheet
 
 local devices = {}
 
+local function to_hex(addr)
+	return string.format("0x%x%x%x%x%x%x", addr:byte(2), addr:byte(3), addr:byte(4),
+		addr:byte(5), addr:byte(6), addr:byte(7))
+end
+
 local function init_one(pin)
 	ow.setup(pin)
 	ow.reset_search(pin)
@@ -48,5 +53,6 @@ end
 return {
 	devices = devices,
 	init_one = init_one,
+	to_hex = to_hex,
 	read = read
 }

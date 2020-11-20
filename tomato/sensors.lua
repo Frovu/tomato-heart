@@ -18,7 +18,7 @@ ds18b20.init_one(pin)
 local function read18b20()
 	ds18b20.read(pin, function(res)
 		for k, v in pairs(res) do
-			print(k, v)
+			print(ds18b20.to_hex(k)..": "..v)
 		end
 	end)
 end
@@ -28,7 +28,6 @@ local function measureAndSend(sender)
 	bme280sensor:startreadout(function(T, P, H)
 		if not T or not P or not H then
 			print("bme280 returned", T, P, H)
-			--measureAndSend()
 			return
 		end
 		print(string.format("T=%.2f P=%.2f H=%.2f", T, P, H))
