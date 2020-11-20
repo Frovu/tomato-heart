@@ -1,13 +1,19 @@
 local data
 local sensors = require('sensors')
 
-local CHECK_RATE = 5000
+local CHECK_RATE = 10000
 local HEATER_PIN = { 5, 6 }
 local HIGHER_MARGIN = 1 -- Celsius
 local heaters_on = { false, false }
 
 local function is_day_now()
 	return true -- todo: implement
+end
+
+local function switch(i, on)
+	gpio.write(HEATER_PIN[i], on and gpio.HIGH or gpio.LOW) -- this "ternary" may be broken if high==0
+	heaters_on[i] = on
+	print("turning heater "..i..(on and " on" or " off"))
 end
 
 local function logic()
@@ -19,19 +25,16 @@ local function logic()
 			local temp = data["st"..section]
 			if not temp or not range then
 				print("no soil temp for #"..section, temp)
+				switch(i, false)
 			else
 				print("check heap="..node.heap().." i="..i.." on="..tostring(heaters_on[i]).." val: "..range[1].." < "..tostring(temp).." < "..range[2]) -- debug
 				if heaters_on[i] then -- stop heating when reached (higher-margin)
 					if temp > range[2]-HIGHER_MARGIN then
-						gpio.write(HEATER_PIN[i], gpio.LOW)
-						heaters_on[i] = false
-						print("turning heater "..i.." off")
+						switch(i, false)
 					end
 				else -- start heating if below lower temp
 					if temp < range[1] then
-						gpio.write(HEATER_PIN[i], gpio.HIGH)
-						heaters_on[i] = true
-						print("turning heater "..i.." on")
+						switch(i, true)
 					end
 				end
 			end
