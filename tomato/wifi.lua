@@ -1,6 +1,7 @@
 ALLOW_NET = false -- allows to do web requests
 
 sta_config = wifi.sta.getconfig(true);
+wifi.sta.autoconnect(1)
 print(string.format("\nCurrent wifi config, mode: %d\n\tssid:\"%s\"\tpassword:\"%s\"\n\tbssid:\"%s\"\tbssid_set:%s", wifi.getmode(nil), tostring(sta_config.ssid), tostring(sta_config.pwd), sta_config.bssid, (sta_config.bssid_set and "true" or "false")))
 
 local URI_FNAME = "uri"
@@ -13,6 +14,7 @@ else
 	uri = FALLBACK_URI
 end
 
+--[[
 local conf_server
 -- if STA requires manual configuration
 if not sta_config.pwd and #tostring(sta_config.ssid) == 0 then
@@ -58,6 +60,7 @@ local function server_loader()
 end
 alarm:register(1000, tmr.ALARM_SEMI, server_loader)
 alarm:start()
+]]
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
 	print("\nSTA - DISCONNECTED".."\nSSID: "..T.SSID.."\nBSSID: "..T.BSSID.."\nreason: "..T.reason)
