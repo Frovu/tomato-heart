@@ -45,18 +45,25 @@ local function read_bme280(data, cb)
 	end, BME_RESPONSE_DELAY)
 end
 
-local function measure_and_send(sender)
-	local data = {}
+local function measure(data, callback)
 	read_bme280(data, function()
 		read_18b20(data, function()
-			for k, v in pairs(data) do
-				data[k] = string.format("%.2f", v)
-			end
-			sender("data", data)
+			callback()
 		end)
 	end)
 end
 
+local function measure_and_send(sender)
+	local data = {}
+	measure(data, function()
+		for k, v in pairs(data) do
+			data[k] = string.format("%.2f", v)
+		end
+		sender("data", data)
+	end)
+end
+
 return {
-	measure = measure_and_send
+	measure = measure,
+	send = measure_and_send
 }

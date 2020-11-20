@@ -33,7 +33,7 @@ function heartbeat_callback()
 	counter = counter + 1
 	if counter >= data_rate_cycles then
 		counter = 0
-		sensors.measure(internet.send)
+		sensors.send(internet.send)
 	end
 end
 
