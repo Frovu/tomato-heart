@@ -8,7 +8,7 @@ for k,v in pairs(wifi.ap.getconfig(true)) do
 end
 print("  IP:", wifi.ap.getip())
 
-function M.start(callback)
+function M.start(cb)
 	if wifi.getmode() ~= wifi.STATIONAP then
 		wifi.setmode(wifi.STATIONAP)
 		print("Switching to STATIONAP mode")
@@ -17,7 +17,7 @@ function M.start(callback)
 		print("\nStarting config server..")
 		server = net.createServer(net.TCP, 5)
 		server:listen(80, function(conn)
-			conn:on("receive", receiver, callback)
+			conn:on("receive", function(sck, data) M.receiver(sck, data, cb) end)
 		end)
 		local port, ip = server:getaddr()
 		print("Listening to "..ip..":"..port)
@@ -32,20 +32,22 @@ function M.stop()
 		server:close()
 		server = nil
 	end
+	wifi.setmode(wifi.STATION)
 end
 
-local function receiver(sck, data, callback)
+function M.receiver(sck, data, callback)
 	if string.find(data, "^POST") then
 		local body = data:match("\n[^\n]*$")
 		local ssid = body:match("ssid=([^\&]+)")
 		local pwd = body:match("pwd=([^\&]+)")
 		local new_uri = body:match("uri=([^\&]+)"):gsub("%%3A", ":"):gsub("%%2F", "/")
 		if ssid and pwd and uri then
+			callback(ssid, pwd, new_uri)
 			print("\nUpdating hard settings to:\n\tssid="..ssid.." pwd="..pwd.." uri="..uri)
-			sck:send("<!DOCTYPE html>\n<h1>Settings updated, changing wifi mode</h1>");
+			sck:send("<!DOCTYPE html>\n<h1>Settings updated</h1>");
 			sck:on("sent", function(conn)
 				conn:close()
-				tmr.create():alarm(500, tmr.ALARM_SINGLE, function()
+				tmr.create():alarm(300, tmr.ALARM_SINGLE, function()
 					callback(ssid, pwd, new_uri)
 				end)
 			end)
@@ -59,10 +61,9 @@ local function receiver(sck, data, callback)
 			index = file.read(4096)
 			file.close()
 		end
-		sck:send(string.format(index, sta_config.ssid or "", sta_config.pwd or "", uri or ""))
+		sck:send(string.format(index, sta_config and sta_config.ssid or "", sta_config and sta_config.pwd or "", uri or ""))
 		sck:on("sent", function(conn) conn:close() end)
 	end
 end
-
 
 return M

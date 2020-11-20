@@ -1,14 +1,15 @@
+if adc.force_init_mode(adc.INIT_ADC) then
+    node.restart()
+    return
+end
+
+tmr.create():alarm(3000, tmr.ALARM_SINGLE, function() dofile("http.lua") end)
 dofile("sensors.lua")
-dofile("http.lua")
 
 local LED_PIN = 4
 local HEARTBEAT_RATE = 5 -- seconds
 local DATA_RATE = 60 -- seconds
 
-if adc.force_init_mode(adc.INIT_ADC) then
-	node.restart()
-	return
-end
 gpio.mode(LED_PIN, gpio.OUTPUT)
 gpio.write(LED_PIN, gpio.HIGH)
 
@@ -24,9 +25,9 @@ end
 -- main repeating event
 function heartbeat_callback()
 	-- blink if ok reverse blink if settings server running
-	gpio.write(LED_PIN, server and gpio.HIGH or gpio.LOW)
+	gpio.write(LED_PIN, ALLOW_NET and gpio.LOW or gpio.HIGH)
 	heartbeat()
-	gpio.write(LED_PIN, server and gpio.LOW or gpio.HIGH)
+	gpio.write(LED_PIN, ALLOW_NET and gpio.HIGH or gpio.LOW)
 	counter = counter + 1
 	if counter >= data_rate_cycles then
 		counter = 0
