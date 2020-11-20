@@ -1,8 +1,8 @@
-sda, scl = 2, 1
-i2c.setup(0, sda, scl, i2c.SLOW)
-
+local BME_RESPONSE_DELAY = 1000
+local bme280sensor
 do
-	BME_RESPONSE_DELAY = 1000
+	local sda, scl = 2, 1
+	i2c.setup(0, sda, scl, i2c.SLOW)
 	local temp_oss = 4 -- x8 ! for some reason it refuses to work with smaller oversampling
 	local press_oss = 4 -- x8
 	local humi_oss = 2 -- x2
@@ -12,7 +12,7 @@ do
 	print("bme: addr, isbme = ", bme280sensor and bme280sensor.addr, bme280sensor and bme280sensor._isbme)
 end
 
-function measureAndSend()
+function measureAndSend(sender)
 	if not bme280sensor then return false end
 	bme280sensor:startreadout(function(T, P, H)
 		if not T or not P or not H then
@@ -26,6 +26,8 @@ function measureAndSend()
 			p=string.format("%.2f", P),
 			h=string.format("%.2f", H)
 		}
-		send("data", data)
+		sender("data", data)
 	end, BME_RESPONSE_DELAY)
 end
+
+return {measure = measureAndSend}

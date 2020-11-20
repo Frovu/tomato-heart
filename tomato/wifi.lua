@@ -14,23 +14,7 @@ else
 	end
 end
 
-conf_server = require("config_server")
-
-function finish_settings(ssid, pwd, new_uri)
-	if conf_server then
-		conf_server.stop()
-		conf_server = nil
-		package.loaded["config_server"] = nil
-	end
-	sta_config.ssid = ssid
-	sta_config.pwd = pwd
-	wifi.sta.config(sta_config)
-	uri = new_uri
-	if file.open(URI_FNAME, "w") then
-		file.write(uri)
-		file.close()
-	end
-end
+local conf_server = require("config_server")
 
 -- if STA requires manual configuration
 if not sta_config.pwd and #tostring(sta_config.ssid) == 0 then
@@ -46,7 +30,21 @@ else
 	end)
 end
 
-conf_server.start(finish_settings)
+conf_server.start(function (ssid, pwd, new_uri)
+	if conf_server then
+		conf_server.stop()
+		conf_server = nil
+		package.loaded["config_server"] = nil
+	end
+	sta_config.ssid = ssid
+	sta_config.pwd = pwd
+	wifi.sta.config(sta_config)
+	uri = new_uri
+	if file.open(URI_FNAME, "w") then
+		file.write(uri)
+		file.close()
+	end
+end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
 	print("\nSTA - DISCONNECTED".."\nSSID: "..T.SSID.."\nBSSID: "..T.BSSID.."\nreason: "..T.reason)

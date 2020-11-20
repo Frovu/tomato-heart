@@ -14,7 +14,7 @@ else
 	auth_key = "4N0nYM0u2"
 end
 
-function readSettings()
+do
 	if file.open("settings.json", "r") then
 		local tmp = sjson.decode(file.read(4096))
 		file.close()
@@ -29,10 +29,9 @@ function readSettings()
 		print("failed to read settings.json")
 	end
 end
-readSettings()
 
 -- handle brand new settings
-function settingsUpdate()
+local function settingsUpdate()
 	print("Settings updated, reiniting alarms")
 	initAlarms(settings.heartbeat, settings.datarate)
 
@@ -46,7 +45,7 @@ function settingsUpdate()
 	end
 end
 
-function heartbeat()
+local function heartbeat()
 	if not ALLOW_NET then return false end
 	http.get(string.format("%s?s=%s", uri, hashsum), nil, function(code, data)
 		if (code == 205) then
@@ -64,7 +63,7 @@ function heartbeat()
 	end)
 end
 
-function send(type, data)
+local function send(type, data)
 	if not ALLOW_NET then return false end
 	data.key = auth_key
 	local body = sjson.encode(data)
@@ -82,3 +81,8 @@ function send(type, data)
 		end
 	end)
 end
+
+return {
+	heartbeat = heartbeat,
+	send = send
+}
