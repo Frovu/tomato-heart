@@ -20,7 +20,7 @@ do
 		file.close()
 		if tmp.sum and tmp.settings then
 			settings = tmp.settings
-			sum = tmp.sum
+			hashsum = tmp.sum
 			print("successfuly read from settings.json")
 		else
 			print("settings.json seems invalid")
