@@ -1,6 +1,6 @@
 if adc.force_init_mode(adc.INIT_ADC) then
-    node.restart()
-    return
+	node.restart()
+	return
 end
 
 local sensors = require("sensors")
@@ -33,6 +33,7 @@ function heartbeat_callback()
 		counter = 0
 		sensors.measure(internet.send)
 	end
+	sensors.read18b20()
 end
 
 initAlarms(settings and settings.heartbeat or HEARTBEAT_RATE,

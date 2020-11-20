@@ -14,8 +14,7 @@ else
 	end
 end
 
-local conf_server = require("config_server")
-
+local conf_server
 -- if STA requires manual configuration
 if not sta_config.pwd and #tostring(sta_config.ssid) == 0 then
 	ALLOW_NET = false
@@ -30,21 +29,33 @@ else
 	end)
 end
 
-conf_server.start(function (ssid, pwd, new_uri)
-	if conf_server then
-		conf_server.stop()
-		conf_server = nil
-		package.loaded["config_server"] = nil
-	end
-	sta_config.ssid = ssid
-	sta_config.pwd = pwd
-	wifi.sta.config(sta_config)
-	uri = new_uri
-	if file.open(URI_FNAME, "w") then
-		file.write(uri)
-		file.close()
+local alarm = tmr.create()
+alarm:register(1000, tmr.ALARM_SEMI, function()
+	print("trying to load config server, heap="..node.heap())
+	if pcall(function() conf_server = require("config_server") end) then
+		print("success loading server")
+		alarm:unregister()
+		conf_server.start(function (ssid, pwd, new_uri)
+			if conf_server then
+				conf_server.stop()
+				conf_server = nil
+				package.loaded["config_server"] = nil
+			end
+			sta_config.ssid = ssid
+			sta_config.pwd = pwd
+			wifi.sta.config(sta_config)
+			uri = new_uri
+			if file.open(URI_FNAME, "w") then
+				file.write(uri)
+				file.close()
+			end
+		end)
+	else
+		print("failed to load server")
+		alarm:start()
 	end
 end)
+alarm:start()
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
 	print("\nSTA - DISCONNECTED".."\nSSID: "..T.SSID.."\nBSSID: "..T.BSSID.."\nreason: "..T.reason)
