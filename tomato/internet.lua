@@ -1,4 +1,4 @@
-local mwf = require("wifi")
+dofile("wifi.lc")
 
 settings = nil
 local hashsum = ""
@@ -77,7 +77,17 @@ local function send(type, data)
 	local body = sjson.encode(data)
 	print("sending "..type..": "..body)
 	http.post(string.format("%s/%s", uri, type=="data" and "data" or "event"),
-		"Content-Type: application/json\r\n", body, send_cb)
+		"Content-Type: application/json\r\n", body, function(code, data)
+		if (code == 400) then
+			print("Invalid "..type)
+		elseif (code == 401) then
+			print("Unauthorized for send")
+		elseif (code ~= 200) then
+			print("Failed to send "..type)
+		else
+			print("Successfuly sent "..type)
+		end
+	end)
 end
 
 return {

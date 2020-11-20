@@ -22,11 +22,10 @@ local function read_18b20(data, cb)
 			if not res[addr] then
 				print("ds18b20 dev not found for "..role)
 			else
-				print(role.." = "..res[addr])
 				data[role] = res[addr]
 			end
 		end
-		cb()
+		cb(data)
 	end)
 end
 
@@ -41,29 +40,23 @@ local function read_bme280(data, cb)
 		data.t = T
 		data.p = P
 		data.h = H
-		cb()
+		cb(data)
 	end, BME_RESPONSE_DELAY)
-end
-
-local function measure(data, callback)
-	read_bme280(data, function()
-		read_18b20(data, function()
-			callback()
-		end)
-	end)
 end
 
 local function measure_and_send(sender)
 	local data = {}
-	measure(data, function()
-		for k, v in pairs(data) do
-			data[k] = string.format("%.2f", v)
-		end
-		sender("data", data)
+	read_bme280(data, function(data)
+		read_18b20(data, function(data)
+			for k, v in pairs(data) do
+				data[k] = string.format("%.2f", v)
+			end
+			sender("data", data)
+		end)
 	end)
 end
 
 return {
-	measure = measure,
+	measure = read_18b20,
 	send = measure_and_send
 }

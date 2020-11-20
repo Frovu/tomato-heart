@@ -58,6 +58,7 @@ return {
 			gpio.mode(pin, gpio.OUTPUT)
 			gpio.write(pin, gpio.LOW)
 		end
+		check()
 		tmr.create():alarm(CHECK_RATE, tmr.ALARM_AUTO, check)
 	end
 }

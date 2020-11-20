@@ -7,12 +7,12 @@ dofile("config.lua")
 
 local sensors = require("sensors")
 local controls = require("controls")
-controls.init()
 local internet = require("internet")
+controls.init()
 
 local LED_PIN = 4
 local HEARTBEAT_RATE = 5 -- seconds
-local DATA_RATE = 60 -- seconds
+local DATA_RATE = 300 -- seconds
 
 gpio.mode(LED_PIN, gpio.OUTPUT)
 gpio.write(LED_PIN, gpio.HIGH)
@@ -20,7 +20,7 @@ gpio.write(LED_PIN, gpio.HIGH)
 local heart_tmr = tmr.create();
 function initAlarms(h_rate, d_rate)
 	data_rate_cycles = math.floor( d_rate / h_rate )
-	counter = data_rate_cycles - 2
+	counter = data_rate_cycles - 3
 	print("\nInit timers with rates: heartbeat="..(h_rate).." data="..data_rate_cycles*h_rate)
 	heart_tmr:unregister()
 	heart_tmr:alarm(h_rate * 1000, tmr.ALARM_AUTO, heartbeat_callback)
