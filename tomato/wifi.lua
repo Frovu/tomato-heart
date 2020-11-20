@@ -9,9 +9,8 @@ if file.open(URI_FNAME, "r") then
 	print("\nRead uri from file:  "..uri)
 	file.close()
 else
-	for i = 1, 3 do
-		print("\nPANIC! Can't read uri from file!")
-	end
+	print("\nWARN! Can't read uri from file!")
+	uri = FALLBACK_URI
 end
 
 local conf_server
