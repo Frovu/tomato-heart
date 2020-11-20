@@ -6,6 +6,8 @@ end
 dofile("config.lua")
 
 local sensors = require("sensors")
+local controls = require("controls")
+controls.init()
 local internet = require("internet")
 
 local LED_PIN = 4
@@ -27,6 +29,7 @@ end
 -- main repeating event
 function heartbeat_callback()
 	-- blink if ok reverse blink if settings server running
+	print("beat, heap="..node.heap())
 	gpio.write(LED_PIN, ALLOW_NET and gpio.LOW or gpio.HIGH)
 	internet.heartbeat()
 	gpio.write(LED_PIN, ALLOW_NET and gpio.HIGH or gpio.LOW)

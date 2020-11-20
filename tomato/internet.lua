@@ -1,4 +1,4 @@
-dofile("wifi.lua")
+local mwf = require("wifi")
 
 settings = nil
 local hashsum = ""
@@ -39,22 +39,36 @@ local function settingsUpdate()
 	end
 end
 
+local function heartbeat_cb(code, data)
+	if (code == 205) then
+		local tmp = sjson.decode(data)
+		if tmp.settings and tmp.sum then
+			settings = tmp.settings
+			hashsum = tmp.sum
+			settingsUpdate()
+		else
+			print("Invalid settings body")
+		end
+	elseif (code == 200) then
+		print(".")
+	end
+end
+
 local function heartbeat()
 	if not ALLOW_NET then return false end
-	http.get(string.format("%s?s=%s", uri, hashsum), nil, function(code, data)
-		if (code == 205) then
-			local tmp = sjson.decode(data)
-			if tmp.settings and tmp.sum then
-				settings = tmp.settings
-				hashsum = tmp.sum
-				settingsUpdate()
-			else
-				print("Invalid settings body")
-			end
-		elseif (code == 200) then
-			print(".")
-		end
-	end)
+	http.get(string.format("%s?s=%s", uri, hashsum), nil, heartbeat_cb)
+end
+
+local function send_cb(code, data)
+	if (code == 400) then
+		print("Invalid "..type)
+	elseif (code == 401) then
+		print("Unauthorized for send")
+	elseif (code ~= 200) then
+		print("Failed to send "..type)
+	else
+		print("Successfuly sent "..type)
+	end
 end
 
 local function send(type, data)
@@ -63,17 +77,7 @@ local function send(type, data)
 	local body = sjson.encode(data)
 	print("sending "..type..": "..body)
 	http.post(string.format("%s/%s", uri, type=="data" and "data" or "event"),
-		"Content-Type: application/json\r\n", body, function(code, data)
-		if (code == 400) then
-			print("Invalid "..type)
-		elseif (code == 401) then
-			print("Unauthorized for send")
-		elseif (code ~= 200) then
-			print("Failed to send "..type)
-		else
-			print("Successfuly sent "..type)
-		end
-	end)
+		"Content-Type: application/json\r\n", body, send_cb)
 end
 
 return {

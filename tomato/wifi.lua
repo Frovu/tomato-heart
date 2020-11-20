@@ -24,12 +24,13 @@ else
 			conf_server.stop()
 			conf_server = nil
 			package.loaded["config_server"] = nil
+			server_loader = nil
 		end
 	end)
 end
 
 local alarm = tmr.create()
-alarm:register(1000, tmr.ALARM_SEMI, function()
+local function server_loader()
 	print("trying to load config server, heap="..node.heap())
 	if pcall(function() conf_server = require("config_server") end) then
 		print("success loading server")
@@ -39,6 +40,7 @@ alarm:register(1000, tmr.ALARM_SEMI, function()
 				conf_server.stop()
 				conf_server = nil
 				package.loaded["config_server"] = nil
+				server_loader = nil
 			end
 			sta_config.ssid = ssid
 			sta_config.pwd = pwd
@@ -53,7 +55,8 @@ alarm:register(1000, tmr.ALARM_SEMI, function()
 		print("failed to load server")
 		alarm:start()
 	end
-end)
+end
+alarm:register(1000, tmr.ALARM_SEMI, server_loader)
 alarm:start()
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
