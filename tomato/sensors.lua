@@ -12,7 +12,18 @@ do
 	print("bme: addr, isbme = ", bme280sensor and bme280sensor.addr, bme280sensor and bme280sensor._isbme)
 end
 
-function measureAndSend(sender)
+local ds18b20 = require("ds18b20")
+local pin = 3
+ds18b20.init_one(pin)
+local function read18b20()
+	ds18b20.read(pin, function(res)
+		for k, v in pairs(res) do
+			print(k, v)
+		end
+	end)
+end
+
+local function measureAndSend(sender)
 	if not bme280sensor then return false end
 	bme280sensor:startreadout(function(T, P, H)
 		if not T or not P or not H then
@@ -30,4 +41,7 @@ function measureAndSend(sender)
 	end, BME_RESPONSE_DELAY)
 end
 
-return {measure = measureAndSend}
+return {
+	read18b20 = read18b20,
+	measure = measureAndSend
+}
