@@ -3,13 +3,17 @@ let plot;
 const FIELDS = {
 	t: 'temperature',
 	p: 'pressure',
-	h: 'humidity'
+	h: 'humidity',
+	st1: 'soil_temp_1',
+	st2: 'soil_temp_2'
 };
 
 const COLORS = {
-	t: 'cyan',
-	p: 'blue',
-	h: 'yellow'
+	t: '#00ffff',
+	p: '#ff44ff',
+	h: '#33ff66',
+	st1: '#ffaa44',
+	st2: '#ffaa66'
 };
 
 function updatePlot(data, fields) {
@@ -37,7 +41,8 @@ function updatePlot(data, fields) {
 		data: data[f],
 		borderColor: COLORS[f],
 		fill: false,
-		yAxisID: `${f}-y-axis`
+		yAxisID: `${f}-y-axis`,
+		hidden: f.startsWith('st'),
 	};});
 	plot.options.scales.yAxes = fields.map(f => {return {
 		id: `${f}-y-axis`,
@@ -56,7 +61,7 @@ function encodeParams(obj) {
 }
 
 async function update() {
-	const fields = ['t', 'p', 'h'];
+	const fields = ['t', 'p', 'h', 'st1', 'st2'];
 	const params = {
 		fields: fields.join(','),
 		from: Math.floor(Date.now()/1000 - 3600)
