@@ -37,6 +37,7 @@ async function updateData(obj) {
 			// TODO: moisture ranges
 		}
 	}
+	update && update(); // eslint-disable-line
 }
 
 function updateEvents(arr) {

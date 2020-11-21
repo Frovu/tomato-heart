@@ -36,13 +36,15 @@ function updatePlot(data, fields) {
 			}
 		});
 	}
-	plot.data.datasets = fields.map(f => {return {
+	let i=-1;
+	const getHidden = (set) => set && (set._meta[0].hidden !== null ? set._meta[0].hidden : set.hidden);
+	plot.data.datasets = fields.map(f => {i++; console.log(f, getHidden(plot.data.datasets[i]), plot.data.datasets[i]); return {
 		label: FIELDS[f],
 		data: data[f],
 		borderColor: COLORS[f],
 		fill: false,
 		yAxisID: `${f}-y-axis`,
-		hidden: f.startsWith('st'),
+		hidden: plot.data.datasets[i] ? getHidden(plot.data.datasets[i]) : f.startsWith('st'),
 	};});
 	plot.options.scales.yAxes = fields.map(f => {return {
 		id: `${f}-y-axis`,
@@ -60,7 +62,7 @@ function encodeParams(obj) {
 	return keys.length ? '?' + keys.map(k => `${k}=${obj[k]}`).join('&') : '';
 }
 
-async function update() {
+async function update() { // eslint-disable-line
 	const fields = ['t', 'p', 'h', 'st1', 'st2'];
 	const params = {
 		fields: fields.join(','),
@@ -82,5 +84,3 @@ async function update() {
 	}
 	updatePlot(plotData, fields);
 }
-
-update();
