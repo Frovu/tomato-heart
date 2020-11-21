@@ -1,12 +1,15 @@
 local data
 local sensors = require('sensors')
 
+local TIMEZONE = 3600 * 3 -- UTC+3
 local CHECK_RATE = 10000
 local HEATER_PIN = { 5, 6 }
 local HIGHER_MARGIN = 1 -- Celsius
 local heaters_on = { false, false }
 
 local function is_day_now()
+	local tm = rtctime.epoch2cal(rtctime.get() + TIMEZONE)
+	print(string.format("%04d/%02d/%02d %02d:%02d:%02d", tm["year"], tm["mon"], tm["day"], tm["hour"], tm["min"], tm["sec"]))
 	return true -- todo: implement
 end
 
@@ -58,7 +61,15 @@ return {
 			gpio.mode(pin, gpio.OUTPUT)
 			gpio.write(pin, gpio.LOW)
 		end
-		check()
+		sntp.sync("pool.ntp.org",
+			function(sec, usec, server, info)
+				print('\nntp sync', sec, usec, server)
+			end,
+			function()
+				print('ntp sync failed!')
+			end,
+			1 -- auto repeat
+		)
 		tmr.create():alarm(CHECK_RATE, tmr.ALARM_AUTO, check)
 	end
 }
