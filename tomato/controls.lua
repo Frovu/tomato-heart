@@ -10,7 +10,13 @@ local heaters_on = { false, false }
 local function is_day_now()
 	local tm = rtctime.epoch2cal(rtctime.get() + TIMEZONE)
 	print(string.format("%04d/%02d/%02d %02d:%02d:%02d", tm["year"], tm["mon"], tm["day"], tm["hour"], tm["min"], tm["sec"]))
-	return true -- todo: implement
+	local nowm = tm["hour"] * 60 + tm["min"]
+	local rn = {}
+	for i = 1, 2 do
+		local h, m = settings.day[i]:match("(%d?%d):(%d%d)")
+		rn[i] = h * 60 + m
+	end
+	return (nowm >= rn[1] and nowm <= rn[2])
 end
 
 local function switch(i, on)
@@ -22,15 +28,15 @@ end
 local function logic()
 	local is_day = is_day_now()
 	for i = 1, 2 do
-		local section = tostring(i)
-		if settings[tostring(section-1)].on then
-			local range = settings[tostring(section-1)][is_day and "day" or "night"]
-			local temp = data["st"..section]
+		local section = settings[tostring(i-1)]
+		if section.on then
+			local range = section[is_day and "day" or "night"]
+			local temp = data["st"..i]
 			if not temp or not range then
-				print("no soil temp for #"..section, temp)
+				print("no soil temp for #"..i, temp)
 				switch(i, false)
 			else
-				print("check heap="..node.heap().." i="..i.." on="..tostring(heaters_on[i]).." val: "..range[1].." < "..tostring(temp).." < "..range[2]) -- debug
+				print("check heap="..node.heap().." day="..tostring(is_day).." i="..i.." on="..tostring(heaters_on[i]).." val: "..range[1].." < "..tostring(temp).." < "..range[2]) -- debug
 				if heaters_on[i] then -- stop heating when reached (higher-margin)
 					if temp > range[2]-HIGHER_MARGIN then
 						switch(i, false)
