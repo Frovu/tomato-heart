@@ -30,24 +30,31 @@ local function logic()
 	for i = 1, 2 do
 		local section = settings[tostring(i-1)]
 		if section.on then
-			local range = section[is_day and "day" or "night"]
-			local temp = data["st"..i]
-			if not temp or not range then
-				print("no soil temp for #"..i, temp)
-				switch(i, false)
+			local heater_temp = data["wt"..i]
+			if heater_temp and heater_temp > section.wire then
+				print("heater #"..i" is too hot! ="..heater_temp)
+				if heaters_on[i] then switch(i, false) end
 			else
-				print("check heap="..node.heap().." day="..tostring(is_day).." i="..i.." on="..tostring(heaters_on[i]).." val: "..range[1].." < "..tostring(temp).." < "..range[2]) -- debug
-				if heaters_on[i] then -- stop heating when reached (higher-margin)
-					if temp > range[2]-HIGHER_MARGIN then
-						switch(i, false)
-					end
-				else -- start heating if below lower temp
-					if temp < range[1] then
-						switch(i, true)
+				local range = section[is_day and "day" or "night"]
+				local temp = data["st"..i]
+				if not temp or not range then
+					print("no soil temp for #"..i, temp)
+					switch(i, false)
+				else
+					print("check heap="..node.heap().." day="..tostring(is_day).." i="..i.." on="..tostring(heaters_on[i]).." val: "..range[1].." < "..tostring(temp).." < "..range[2]) -- debug
+					if heaters_on[i] then -- stop heating when reached (higher-margin)
+						if temp > range[2]-HIGHER_MARGIN then
+							switch(i, false)
+						end
+					else -- start heating if below lower temp
+						if temp < range[1] then
+							switch(i, true)
+						end
 					end
 				end
 			end
-			-- todo: wire temp treshold
+		else
+			if heaters_on[i] then switch(i, false) end
 		end
 	end
 end
