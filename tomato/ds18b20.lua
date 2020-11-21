@@ -41,8 +41,9 @@ local function read(pin, callback)
 			ow.select(pin, addr)
 			ow.write(pin, CMD_READ)
 			local data = ow.read_bytes(pin, 9)
-			if ow.crc8(string.sub(data, 1, 8)) == data:byte(9) then
-				local t = ((data:byte(1) + data:byte(2) * 256) * 625) / 10000
+			if ow.crc8(string.sub(data, 1, 8)) == data:byte(9) then -- verify crc
+				local	t = data:byte(2) * 0x100 + data:byte(1)
+				t = ((t > 0xfff and t - 0x10000 or t) * 625) / 10000 -- if sign bits (0xfc00) are set, invert bits
 				values[to_hex(addr)] = t
 			end
 		end
