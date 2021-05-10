@@ -57,9 +57,8 @@ local function server_loader()
 		alarm:start()
 	end
 end
-alarm:register(1000, tmr.ALARM_SEMI, server_loader)
+alarm:register(5000, tmr.ALARM_SEMI, server_loader)
 alarm:start()
-
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
 	print("\nSTA - DISCONNECTED".."\nSSID: "..T.SSID.."\nBSSID: "..T.BSSID.."\nreason: "..T.reason)

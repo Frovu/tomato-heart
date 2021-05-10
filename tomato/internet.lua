@@ -1,5 +1,3 @@
-dofile("wifi.lc")
-
 settings = nil
 local hashsum = ""
 

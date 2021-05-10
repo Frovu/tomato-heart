@@ -4,15 +4,14 @@ if adc.force_init_mode(adc.INIT_ADC) then
 end
 
 dofile("config.lua")
+dofile("wifi.lc")
 
-local sensors = require("sensors")
 local controls = require("controls")
-local internet = require("internet")
 controls.init()
 
 local LED_PIN = 4
 local HEARTBEAT_RATE = 5 -- seconds
-local DATA_RATE = 300 -- seconds
+local DATA_RATE = 60 -- seconds
 
 gpio.mode(LED_PIN, gpio.OUTPUT)
 gpio.write(LED_PIN, gpio.HIGH)
@@ -28,15 +27,34 @@ end
 
 -- main repeating event
 function heartbeat_callback()
+	local internet = require("internet")
 	-- blink if ok reverse blink if settings server running
 	print("beat, heap="..node.heap())
 	gpio.write(LED_PIN, ALLOW_NET and gpio.LOW or gpio.HIGH)
+	local internet = require("internet")
+	print("heap="..node.heap())
 	internet.heartbeat()
+	package.loaded["internet"] = nil
+	internet = nil
+	print("heap="..node.heap())
 	gpio.write(LED_PIN, ALLOW_NET and gpio.HIGH or gpio.LOW)
 	counter = counter + 1
 	if counter >= data_rate_cycles then
 		counter = 0
-		sensors.send(internet.send)
+		print("heap="..node.heap())
+		local sensors = require("sensors")
+		sensors.measure_all(function (data)
+			package.loaded["sensors"] = nil
+			sensors = nil
+			print("heap="..node.heap())
+			local internet = require("internet")
+			print("heap="..node.heap())
+			internet = require("internet")
+			internet.send("data", data)
+			package.loaded["internet"] = nil
+			internet = nil
+			print("heap="..node.heap())
+		end)
 	end
 end
 

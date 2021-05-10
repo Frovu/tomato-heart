@@ -1,5 +1,4 @@
 local data
-local sensors = require('sensors')
 
 local TIMEZONE = 3600 * 3 -- UTC+3
 local CHECK_RATE = 10000
@@ -21,6 +20,7 @@ end
 
 local function switch(i, on)
 	gpio.write(HEATER_PIN[i], on and gpio.HIGH or gpio.LOW) -- this "ternary" may be broken if high==0
+	-- TODO: PWM
 	heaters_on[i] = on
 	print("turning heater "..i..(on and " on" or " off"))
 end
@@ -64,7 +64,10 @@ local function check()
 		print("settings are not set, can't work")
 	else
 		data = {}
+		local sensors = require('sensors')
 		sensors.measure(data, logic)
+		package.loaded["sensors"] = nil
+		sensors = nil
 	end
 end
 
