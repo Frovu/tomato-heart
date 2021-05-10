@@ -6,6 +6,24 @@ end
 dofile("config.lua")
 dofile("wifi.lc")
 
+do
+   settings = nil
+   hashsum = ""
+   if file.open("settings.json", "r") then
+        local tmp = sjson.decode(file.read(4096))
+        file.close()
+        if tmp.sum and tmp.settings then
+            settings = tmp.settings
+            hashsum = tmp.sum
+            print("successfuly read from settings.json")
+        else
+            print("settings.json seems invalid")
+        end
+    else
+        print("failed to read settings.json")
+    end
+end
+
 local controls = require("controls")
 controls.init()
 

@@ -1,25 +1,6 @@
-settings = nil
-local hashsum = ""
-
-local auth_key = AUTH_KEY or "4N0nYM0u2"
+local auth_key = AUTH_KEY or "4N0nYM0u5"
 if not AUTH_KEY then
 	print("\n\nWARN! failed to get auth key\n")
-end
-
-do
-	if file.open("settings.json", "r") then
-		local tmp = sjson.decode(file.read(4096))
-		file.close()
-		if tmp.sum and tmp.settings then
-			settings = tmp.settings
-			hashsum = tmp.sum
-			print("successfuly read from settings.json")
-		else
-			print("settings.json seems invalid")
-		end
-	else
-		print("failed to read settings.json")
-	end
 end
 
 -- handle brand new settings
