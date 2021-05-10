@@ -16,7 +16,7 @@ local function is_day_now()
 		local h, m = settings.day[i]:match("(%d?%d):(%d%d)")
 		rn[i] = h * 60 + m
 	end
-	return (nowm >= rn[1] and nowm <= rn[2])
+	return (nowm >= rn[1] and nowm < rn[2])
 end
 
 local function switch(i, on)

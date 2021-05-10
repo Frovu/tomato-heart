@@ -30,7 +30,7 @@ local function init_one(pin)
 end
 
 local function read(pin, callback)
-	if not devices[pin] then return nil end
+	if not devices[pin] then callback(nil) end
 	ow.reset(pin)
 	ow.skip(pin)
 	ow.write(pin, CMD_CONVERT_T)

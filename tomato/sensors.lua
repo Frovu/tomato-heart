@@ -30,11 +30,11 @@ local function read_18b20(data, cb)
 end
 
 local function read_bme280(data, cb)
-	if not bme280sensor then return cb() end
+	if not bme280sensor then return cb(data) end
 	bme280sensor:startreadout(function(T, P, H)
 		if not T or not P or not H then
 			print("bme280 returned", T, P, H)
-			return cb()
+			return cb(data)
 		end
 		print(string.format("BME280: T=%.2f P=%.2f H=%.2f", T, P, H))
 		data.t = T
